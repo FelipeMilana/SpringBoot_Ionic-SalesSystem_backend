@@ -13,10 +13,10 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "tb_user")
-public class User implements Serializable{
+public class User implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -25,15 +25,21 @@ public class User implements Serializable{
 	private String password;
 	private Double santanderBalance;
 	private Double nubankBalance;
-	
+
 	@OneToMany(mappedBy = "user")
 	private List<Withdraw> withdraws = new ArrayList<>();
-	
-	
+
+	@OneToMany(mappedBy = "buyer")
+	private List<Vehicle> stock = new ArrayList<>();
+
+	@OneToMany(mappedBy = "seller")
+	private List<Sale> sales = new ArrayList<>();
+
 	public User() {
 	}
 
-	public User(Long id, String name, String email, String password, Double santanderInitialValue, Double nubankInitialValue) {
+	public User(Long id, String name, String email, String password, Double santanderInitialValue,
+			Double nubankInitialValue) {
 		this.id = id;
 		this.name = name;
 		this.email = email;
@@ -41,7 +47,7 @@ public class User implements Serializable{
 		this.santanderBalance = santanderInitialValue;
 		this.nubankBalance = nubankInitialValue;
 	}
-	
+
 	public Long getId() {
 		return id;
 	}
@@ -77,23 +83,31 @@ public class User implements Serializable{
 	public Double getSantanderBalance() {
 		return santanderBalance;
 	}
-	
+
 	public void setSantanderBalance(Double price) {
 		santanderBalance += price;
 	}
-	
+
 	public Double getNubankBalance() {
 		return nubankBalance;
 	}
-	
+
 	public void setNubankBalance(Double price) {
 		nubankBalance += price;
 	}
-	
+
 	public List<Withdraw> getWithdraws() {
 		return withdraws;
 	}
-	
+
+	public List<Vehicle> getStock() {
+		return stock;
+	}
+
+	public List<Sale> getSales() {
+		return sales;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -117,5 +131,5 @@ public class User implements Serializable{
 		} else if (!id.equals(other.id))
 			return false;
 		return true;
-	}	
+	}
 }

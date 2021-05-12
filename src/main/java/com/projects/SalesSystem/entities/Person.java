@@ -1,12 +1,15 @@
 package com.projects.SalesSystem.entities;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -26,6 +29,12 @@ public class Person implements Serializable{
 	
 	@OneToOne(mappedBy = "person", cascade = CascadeType.ALL)
 	private Address address;
+	
+	@OneToMany(mappedBy = "seller")
+	private List<Vehicle> sales = new ArrayList<>();
+	
+	@OneToMany(mappedBy = "client")
+	private List<Sale> purchases = new ArrayList<>();
 	
 	public Person() {
 	}
@@ -84,6 +93,14 @@ public class Person implements Serializable{
 	
 	public void setAddress(Address address) {
 		this.address = address;
+	}
+	
+	public List<Vehicle> getSales() {
+		return sales;
+	}
+	
+	public List<Sale> getPurchases() {
+		return purchases;
 	}
 
 	@Override

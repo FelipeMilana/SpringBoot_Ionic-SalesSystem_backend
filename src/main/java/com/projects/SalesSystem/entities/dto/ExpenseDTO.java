@@ -1,0 +1,78 @@
+package com.projects.SalesSystem.entities.dto;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Size;
+
+import com.projects.SalesSystem.entities.Expense;
+
+public class ExpenseDTO implements Serializable{
+
+	private static final long serialVersionUID = 1L;
+
+	private Long id;
+	
+	@NotEmpty(message = "Preenchimento Obrigatório")
+	@Size(min = 3, message = "Deve ter no mínimo 3 letras")
+	private String name;
+	
+	@NotNull(message = "Preenchimento Obrigatório")
+	@PositiveOrZero(message = "O valor não pode ser negativo")
+	private Double value;
+	
+	@NotNull(message = "Preenchimento Obrigatório")
+	private LocalDate date;
+	
+	public ExpenseDTO() {
+	}
+	
+	public ExpenseDTO(Expense obj) {
+		id = obj.getId();
+		name = obj.getName();
+		value = obj.getValue();
+		date = obj.getDate();
+	}
+
+	public ExpenseDTO(Long id, String name, Double value, LocalDate date) {
+		this.id = id;
+		this.name = name;
+		this.value = value;
+		this.date = date;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Double getValue() {
+		return value;
+	}
+
+	public void setValue(Double value) {
+		this.value = value;
+	}
+
+	public LocalDate getDate() {
+		return date;
+	}
+
+	public void setDate(LocalDate date) {
+		this.date = date;
+	}
+}

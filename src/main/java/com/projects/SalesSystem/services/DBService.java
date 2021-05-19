@@ -63,8 +63,8 @@ public class DBService {
 		personRepo.save(felipe);
 		userRepo.save(neto);
 		
-		Expense exp = new Expense(null, "Gasolina", 50.00, LocalDate.now(), v1);
-		Expense exp2 = new Expense(null, "Manutenção", 950.00, LocalDate.now(), v1);
+		Expense exp = new Expense(null, "Gasolina", Bank.NUBANK, 50.00, LocalDate.now(), v1);
+		Expense exp2 = new Expense(null, "Manutenção", Bank.NUBANK, 950.00, LocalDate.now(), v1);
 		v1.getExpenses().addAll(Arrays.asList(exp, exp2));
 		
 		neto.setNubankBalance(-exp.getValue());

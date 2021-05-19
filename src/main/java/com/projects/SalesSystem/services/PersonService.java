@@ -47,7 +47,7 @@ public class PersonService {
 	
 	
 	public void delete(Long id) {
-		findById(id);
+		findPersonById(id);
 		try {
 			personRepo.deleteById(id);
 		}

@@ -21,6 +21,9 @@ public class ExpenseDTO implements Serializable{
 	private String name;
 	
 	@NotNull(message = "Preenchimento Obrigatório")
+	private Integer bank;
+	
+	@NotNull(message = "Preenchimento Obrigatório")
 	@PositiveOrZero(message = "O valor não pode ser negativo")
 	private Double value;
 	
@@ -33,13 +36,15 @@ public class ExpenseDTO implements Serializable{
 	public ExpenseDTO(Expense obj) {
 		id = obj.getId();
 		name = obj.getName();
+		bank = obj.getBank().getCode();
 		value = obj.getValue();
 		date = obj.getDate();
 	}
 
-	public ExpenseDTO(Long id, String name, Double value, LocalDate date) {
+	public ExpenseDTO(Long id, String name, Integer bank, Double value, LocalDate date) {
 		this.id = id;
 		this.name = name;
+		this.bank = bank;
 		this.value = value;
 		this.date = date;
 	}
@@ -60,6 +65,14 @@ public class ExpenseDTO implements Serializable{
 		this.name = name;
 	}
 
+	public Integer getBank() {
+		return bank;
+	}
+	
+	public void setBank(Integer bank) {
+		this.bank = bank;
+	}
+	
 	public Double getValue() {
 		return value;
 	}

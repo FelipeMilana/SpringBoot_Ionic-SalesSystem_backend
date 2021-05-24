@@ -1,16 +1,23 @@
 package com.projects.SalesSystem.services;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.projects.SalesSystem.entities.Address;
+import com.projects.SalesSystem.entities.Expense;
 import com.projects.SalesSystem.entities.Person;
 import com.projects.SalesSystem.entities.User;
 import com.projects.SalesSystem.entities.Vehicle;
+import com.projects.SalesSystem.entities.dto.ExpenseDTO;
 import com.projects.SalesSystem.entities.dto.PersonDTO;
 import com.projects.SalesSystem.entities.dto.VehicleDTO;
 import com.projects.SalesSystem.entities.enums.Bank;
@@ -26,20 +33,47 @@ public class VehicleService {
 	private VehicleRepository vehicleRepo;
 	@Autowired
 	private PersonService personService;
+	@Autowired
+	private ExpenseService expenseService;
+	@Autowired
+	private UserService userService;
 
-	public VehicleDTO findById(Long id) {
-		Vehicle obj = findVehicleById(id);
-		return new VehicleDTO(obj);
+	
+	public Page<VehicleDTO> myStock(Pageable page) {
+		// Will be authenticated user, this user is a mockdata
+		User user = new User(null, "Felipe", "fe@gmail.com", "123", 50000.00, 60000.00);
+
+		List<Long> vehiclesIds = user.getStock().stream().map(x -> x.getId()).collect(Collectors.toList());
+
+		return vehicleRepo.findByIdIn(vehiclesIds, page).map(x -> new VehicleDTO(x));
 	}
 
-	public VehicleDTO findByName(String name) {
-		Vehicle obj = vehicleRepo.findByName(name);
+	public Page<VehicleDTO> findByModelOrLicensePlate(Pageable page, String str) {
+		// Will be authenticated user, this user is a mockdata
+		User user = new User(null, "Felipe", "fe@gmail.com", "123", 50000.00, 60000.00);
 
-		if (obj != null) {
-			return new VehicleDTO(obj);
-		} else {
-			throw new ObjectNotFound("Objeto não encontrado! Name: " + name);
+		List<Long> vehiclesIds = user.getStock().stream().map(x -> x.getId()).collect(Collectors.toList());
+		
+		boolean hasNumber = false;
+		Page<Vehicle> vehicles;
+		
+		if (str.endsWith("0") || str.endsWith("1") || str.endsWith("2") || str.endsWith("3") || str.endsWith("4") || str.endsWith("5") || str.endsWith("6")
+				|| str.endsWith("7") || str.endsWith("8") || str.endsWith("9")) {
+			hasNumber = true;
 		}
+
+		if (hasNumber) {
+			vehicles = vehicleRepo.findByLicensePlateIgnoreCaseAndIdIn(str, vehiclesIds, page);
+		
+		} else {
+			vehicles = vehicleRepo.findByModelContainingIgnoreCaseAndIdIn(str, vehiclesIds, page);
+		}
+		
+		return vehicles.map(x -> new VehicleDTO(x));
+	}
+
+	public void insert(Vehicle obj) {
+		vehicleRepo.save(obj);
 	}
 
 	@Transactional
@@ -51,32 +85,54 @@ public class VehicleService {
 				obj.getSeller().getAddress().getNumber(), obj.getSeller().getAddress().getDistrict(),
 				obj.getSeller().getAddress().getPostalCode(), obj.getSeller().getAddress().getCity(),
 				obj.getSeller().getAddress().getState(), seller);
-		
+
 		seller.setAddress(ad);
 
 		// Will be authenticated user, this user is a mockdata
 		User buyer = new User(null, "Felipe", "fe@gmail.com", "123", 50000.00, 60000.00);
 
 		Vehicle vehicle = new Vehicle(obj.getId(), VehicleType.toIntegerEnum(obj.getType()), obj.getBrand(),
-				obj.getModel(), obj.getYear(), obj.getDate(), obj.getLicensePlate(), obj.getDescription(),
+				obj.getModel(), obj.getYear(), LocalDate.now(), obj.getLicensePlate(), obj.getDescription(),
 				obj.getPaidValue(), Bank.toIntegerEnum(obj.getBank()), obj.getPossibleSellValue(), buyer, seller);
-		
+
 		seller.getSales().add(vehicle);
-		
+
 		buyer.getStock().add(vehicle);
-		
-		if(vehicle.getBank().getDescription() == "Nubank") {
+
+		if (vehicle.getBank().getDescription() == "Nubank") {
 			buyer.setNubankBalance(-vehicle.getPaidValue());
-		}
-		else {
+		} else {
 			buyer.setSantanderBalance(-vehicle.getPaidValue());
 		}
 
 		personService.insert(seller);
-		//userService.insert(buyer);
-		vehicleRepo.save(vehicle);
+		userService.insert(buyer);
+		insert(vehicle);
 
 		return new VehicleDTO(vehicle);
+	}
+
+	@Transactional
+	public void insertExpenses(Long id, ExpenseDTO obj) {
+		Vehicle vehicle = findVehicleById(id);
+
+		Expense exp = new Expense(obj.getId(), obj.getName(), Bank.toIntegerEnum(obj.getBank()), obj.getValue(),
+				LocalDate.now(), vehicle);
+
+		vehicle.getExpenses().add(exp);
+
+		// wil be authenticated user, this user is a mockdata
+		User buyer = new User(null, "Felipe", "fe@gmail.com", "123", 50000.00, 60000.00);
+
+		if (exp.getBank().getDescription() == "Nubank") {
+			buyer.setNubankBalance(-exp.getValue());
+		} else {
+			buyer.setSantanderBalance(-exp.getValue());
+		}
+
+		expenseService.insert(exp);
+		insert(vehicle);
+		userService.insert(buyer);
 	}
 
 	public void update(VehicleDTO objDTO, Long id) {
@@ -92,15 +148,39 @@ public class VehicleService {
 	}
 
 	public void delete(Long id) {
+		// wil be authenticated user, this user is a mockdata
+		User buyer = new User(null, "Felipe", "fe@gmail.com", "123", 50000.00, 60000.00);
+
 		Vehicle obj = findVehicleById(id);
+		Bank bank = obj.getBank();
+		Double value = obj.getPaidValue();
+		List<Expense> expenses = obj.getExpenses();
+
 		try {
+			for (Expense exp : expenses) {
+				expenseService.delete(exp.getId());
+
+				if (exp.getBank().getDescription() == "Nubank") {
+
+					buyer.setNubankBalance(exp.getValue());
+				} else {
+					buyer.setSantanderBalance(exp.getValue());
+				}
+			}
+
 			vehicleRepo.deleteById(id);
+
+			if (bank.getDescription() == "Nubank") {
+				buyer.setNubankBalance(value);
+			} else {
+				buyer.setSantanderBalance(value);
+			}
+
 			personService.delete(obj.getSeller().getId());
-		}
-		catch (DataIntegrityViolationException e) {
+			userService.insert(buyer);
+		} catch (DataIntegrityViolationException e) {
 			throw new DataIntegrity("Não é possível deletar pois esse veículo tem elementos associados");
 		}
-
 	}
 
 	private Vehicle findVehicleById(Long id) {
@@ -130,7 +210,7 @@ public class VehicleService {
 		obj.getAddress().setPostalCode(objDTO.getAddress().getPostalCode());
 		obj.getAddress().setCity(objDTO.getAddress().getCity());
 		obj.getAddress().setState(objDTO.getAddress().getState());
-		
+
 		return obj;
 	}
 }

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -38,7 +39,7 @@ public class Vehicle  implements Serializable{
 	private Double possibleSellValue;
 	
 	//associations
-	@OneToMany(mappedBy = "vehicle")
+	@OneToMany(mappedBy = "vehicle", fetch = FetchType.EAGER)
 	private List<Expense> expenses = new ArrayList<>();
 	
 	@ManyToOne

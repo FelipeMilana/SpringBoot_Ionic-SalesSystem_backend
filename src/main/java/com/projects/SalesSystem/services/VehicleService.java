@@ -72,6 +72,11 @@ public class VehicleService {
 		return vehicles.map(x -> new VehicleDTO(x));
 	}
 
+	public Vehicle findVehicleById(Long id) {
+		Optional<Vehicle> obj = vehicleRepo.findById(id);
+		return obj.orElseThrow(() -> new ObjectNotFound("Objeto não encontrado! Id: " + id));
+	}
+	
 	public void insert(Vehicle obj) {
 		vehicleRepo.save(obj);
 	}
@@ -106,8 +111,8 @@ public class VehicleService {
 		}
 
 		personService.insert(seller);
-		userService.insert(buyer);
 		insert(vehicle);
+		userService.insert(buyer);
 
 		return new VehicleDTO(vehicle);
 	}
@@ -181,11 +186,6 @@ public class VehicleService {
 		} catch (DataIntegrityViolationException e) {
 			throw new DataIntegrity("Não é possível deletar pois esse veículo tem elementos associados");
 		}
-	}
-
-	private Vehicle findVehicleById(Long id) {
-		Optional<Vehicle> obj = vehicleRepo.findById(id);
-		return obj.orElseThrow(() -> new ObjectNotFound("Objeto não encontrado! Id: " + id));
 	}
 
 	private Vehicle updating(Vehicle obj, VehicleDTO objDTO) {

@@ -3,6 +3,7 @@ package com.projects.SalesSystem.entities.dto;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
@@ -23,10 +24,9 @@ public class SaleDTO implements Serializable{
 	
 	private Double profit;
 	
-	@NotNull(message = "Preenchimento Obrigatório")
 	private VehicleDTO vehicle;
 	
-	@NotNull(message = "Preenchimento Obrigatório")
+	@Valid
 	private PersonDTO client;
 	
 	public SaleDTO() {

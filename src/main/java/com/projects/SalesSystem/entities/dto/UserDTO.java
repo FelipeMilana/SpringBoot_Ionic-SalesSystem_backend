@@ -1,9 +1,6 @@
 package com.projects.SalesSystem.entities.dto;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
@@ -34,13 +31,6 @@ public class UserDTO implements Serializable{
 	
 	@NotNull(message = "Preenchimento Obrigatório")
 	private Double nubankBalance;
-
-	private List<WithdrawDTO> withdraws = new ArrayList<>();
-
-	private List<VehicleDTO> stock = new ArrayList<>();
-
-	private List<SaleDTO> sales = new ArrayList<>();
-
 	
 	public UserDTO() {
 	}
@@ -52,9 +42,6 @@ public class UserDTO implements Serializable{
 		password = obj.getPassword();
 		santanderBalance = obj.getSantanderBalance();
 		nubankBalance = obj.getNubankBalance();
-		withdraws.addAll(obj.getWithdraws().stream().map(x -> new WithdrawDTO(x)).collect(Collectors.toList()));
-		stock.addAll(obj.getStock().stream().map(x -> new VehicleDTO(x)).collect(Collectors.toList()));
-		sales.addAll(obj.getSales().stream().map(x -> new SaleDTO(x)).collect(Collectors.toList()));
 	}
 
 	public UserDTO(Long id, String name, String email, String password, Double santanderBalance, Double nubankBalance) {
@@ -112,17 +99,5 @@ public class UserDTO implements Serializable{
 
 	public void setNubankBalance(Double nubankBalance) {
 		this.nubankBalance = nubankBalance;
-	}
-
-	public List<WithdrawDTO> getWithdraws() {
-		return withdraws;
-	}
-
-	public List<VehicleDTO> getStock() {
-		return stock;
-	}
-
-	public List<SaleDTO> getSales() {
-		return sales;
 	}
 }

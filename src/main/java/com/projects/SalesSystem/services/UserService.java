@@ -3,12 +3,14 @@ package com.projects.SalesSystem.services;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.projects.SalesSystem.entities.User;
 import com.projects.SalesSystem.entities.dto.UserDTO;
 import com.projects.SalesSystem.repositories.UserRepository;
+import com.projects.SalesSystem.security.UserSS;
 import com.projects.SalesSystem.services.exceptions.ObjectNotFound;
 
 @Service
@@ -33,6 +35,15 @@ public class UserService {
 		}
 		
 		return obj;
+	}
+	
+	public UserSS getAuthenticatedUser() {
+		try {
+			return (UserSS) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		}
+		catch(Exception e) {
+			return null;
+		}
 	}
 	
 	public UserDTO findById(Long id) {

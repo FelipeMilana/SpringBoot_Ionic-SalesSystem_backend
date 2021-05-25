@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.projects.SalesSystem.entities.Address;
@@ -37,6 +38,8 @@ public class DBService {
 	private SaleRepository saleRepo;
 	@Autowired
 	private WithdrawRepository withdrawRepo;
+	@Autowired
+	private BCryptPasswordEncoder encoder;
 
 	public void instantiateDatabase() {
 		
@@ -47,7 +50,7 @@ public class DBService {
 		
 		personRepo.save(felipe);
 		
-		User neto = new User(null, "Neto", "neto@gmail.com", "123", 200000.00, 500000.00);
+		User neto = new User(null, "Neto", "neto@gmail.com", encoder.encode("123"), 200000.00, 500000.00);
 		userRepo.save(neto);
 		
 		

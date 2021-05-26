@@ -12,6 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import com.projects.SalesSystem.services.exceptions.AuthorizationException;
 import com.projects.SalesSystem.services.exceptions.DataIntegrity;
 import com.projects.SalesSystem.services.exceptions.ObjectNotFound;
 
@@ -49,6 +50,13 @@ public class ControllerExceptionHandler {
 	
 	@ExceptionHandler(AccessDeniedException.class)
 	public ResponseEntity<StandardError> accessDenied(AccessDeniedException e, HttpServletRequest request) {
+		HttpStatus status = HttpStatus.FORBIDDEN;
+		ValidationError err = new ValidationError(System.currentTimeMillis(), status.value(), status.getReasonPhrase(), e.getMessage(), request.getRequestURI());
+		return ResponseEntity.status(status).body(err);
+	}
+	
+	@ExceptionHandler(AuthorizationException.class)
+	public ResponseEntity<StandardError> authorization(AuthorizationException e, HttpServletRequest request) {
 		HttpStatus status = HttpStatus.FORBIDDEN;
 		ValidationError err = new ValidationError(System.currentTimeMillis(), status.value(), status.getReasonPhrase(), e.getMessage(), request.getRequestURI());
 		return ResponseEntity.status(status).body(err);

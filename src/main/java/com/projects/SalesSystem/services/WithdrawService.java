@@ -17,6 +17,8 @@ import com.projects.SalesSystem.entities.Withdraw;
 import com.projects.SalesSystem.entities.dto.WithdrawDTO;
 import com.projects.SalesSystem.entities.enums.Bank;
 import com.projects.SalesSystem.repositories.WithdrawRepository;
+import com.projects.SalesSystem.security.UserSS;
+import com.projects.SalesSystem.services.exceptions.AuthorizationException;
 import com.projects.SalesSystem.services.exceptions.DataIntegrity;
 import com.projects.SalesSystem.services.exceptions.ObjectNotFound;
 
@@ -25,14 +27,23 @@ public class WithdrawService {
 
 	@Autowired
 	private WithdrawRepository withdrawRepo;
+	@Autowired
+	private UserService userService;
 
 	public Page<WithdrawDTO> myWithdraws(Pageable page) {
-		// Will be authenticated user, this user is a mockdata
-		User user = new User(null, "Felipe", "fe@gmail.com", "123", 50000.00, 60000.00);
-		
-		List<Long> withdrawIds = user.getWithdraws().stream().map(x -> x.getId()).collect(Collectors.toList());
 
+		UserSS authUser = userService.getAuthenticatedUser();
+
+		if (authUser == null) {
+			throw new AuthorizationException("Acesso Negado");
+		}
+
+		User user = userService.findUserByEmail(authUser.getUsername());
+
+		List<Long> withdrawIds = user.getWithdraws().stream().map(x -> x.getId()).collect(Collectors.toList());
+		
 		return withdrawRepo.findByIdIn(withdrawIds, page).map(x -> new WithdrawDTO(x));
+		
 	}
 
 	public void insert(Withdraw obj) {
@@ -40,9 +51,15 @@ public class WithdrawService {
 	}
 
 	@Transactional
-	public void insertFromDTO(WithdrawDTO obj) {
-		// Will be authenticated user, this user is a mockdata
-		User user = new User(null, "Felipe", "fe@gmail.com", "123", 50000.00, 60000.00);
+	public WithdrawDTO insertFromDTO(WithdrawDTO obj) {
+
+		UserSS authUser = userService.getAuthenticatedUser();
+
+		if (authUser == null) {
+			throw new AuthorizationException("Acesso Negado");
+		}
+
+		User user = userService.findUserByEmail(authUser.getUsername());
 
 		Withdraw withdraw = new Withdraw(obj.getId(), Bank.toIntegerEnum(obj.getBank()), obj.getValue(),
 				LocalDate.now(), user);
@@ -55,32 +72,35 @@ public class WithdrawService {
 			user.setSantanderBalance(-withdraw.getValue());
 		}
 
-		// userService.insert(user);
 		insert(withdraw);
+		userService.insert(user);
+		
+		return new WithdrawDTO(withdraw);
 	}
 
 	public void delete(Long id) {
-		// Will be authenticated user, this user is a mockdata
-		User user = new User(null, "Felipe", "fe@gmail.com", "123", 50000.00, 60000.00);
-		
-		Withdraw withdraw = findWithdrawById(id);
-		
-		Bank bank = withdraw.getBank();
-		double value = withdraw.getValue();
-		
+		UserSS authUser = userService.getAuthenticatedUser();
+
+		if (authUser == null) {
+			throw new AuthorizationException("Acesso Negado");
+		}
+
+		User user = userService.findUserByEmail(authUser.getUsername());
+
 		try {
+			Withdraw withdraw = findWithdrawById(id);
+
+			if (withdraw.getBank().getDescription() == "Nubank") {
+				user.setNubankBalance(withdraw.getValue());
+			} else {
+				user.setSantanderBalance(withdraw.getValue());
+			}
+			
+			userService.insert(user);
 			withdrawRepo.deleteById(id);
-			
-			if(bank.getDescription() == "Nubank") {
-				user.setNubankBalance(value);
-			}
-			else {
-				user.setSantanderBalance(value);
-			}
-			
-			//userService.insert(user)
-		} catch (DataIntegrityViolationException e) {
-			throw new DataIntegrity("Não é possível deletar pois esse saque tem elementos associados");
+		} 
+		catch (DataIntegrityViolationException e) {
+			throw new DataIntegrity("Não foi possível deletar");
 		}
 	}
 

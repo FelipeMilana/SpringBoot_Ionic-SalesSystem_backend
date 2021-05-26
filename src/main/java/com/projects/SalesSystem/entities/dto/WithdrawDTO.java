@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.projects.SalesSystem.entities.Withdraw;
 
 public class WithdrawDTO implements Serializable{
@@ -21,7 +22,7 @@ public class WithdrawDTO implements Serializable{
 	@PositiveOrZero(message = "O valor não pode ser negativo")
 	private Double value;
 	
-	@NotNull(message = "Preenchimento Obrigatório")
+	@JsonFormat(pattern = "dd/MM/yyyy")
 	private LocalDate date;
 
 	public WithdrawDTO() {

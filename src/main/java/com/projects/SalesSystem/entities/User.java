@@ -11,6 +11,9 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 @Entity
 @Table(name = "tb_user")
 public class User implements Serializable {
@@ -27,12 +30,15 @@ public class User implements Serializable {
 	private Double nubankBalance;
 
 	@OneToMany(mappedBy = "user")
+	@LazyCollection(LazyCollectionOption.FALSE)
 	private List<Withdraw> withdraws = new ArrayList<>();
 
 	@OneToMany(mappedBy = "buyer")
+	@LazyCollection(LazyCollectionOption.FALSE)
 	private List<Vehicle> stock = new ArrayList<>();
 
 	@OneToMany(mappedBy = "seller")
+	@LazyCollection(LazyCollectionOption.FALSE)
 	private List<Sale> sales = new ArrayList<>();
 
 	public User() {

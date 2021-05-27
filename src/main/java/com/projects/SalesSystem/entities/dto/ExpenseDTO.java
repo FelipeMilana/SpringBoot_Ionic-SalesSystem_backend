@@ -8,6 +8,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.projects.SalesSystem.entities.Expense;
 
 public class ExpenseDTO implements Serializable{
@@ -27,7 +28,7 @@ public class ExpenseDTO implements Serializable{
 	@PositiveOrZero(message = "O valor não pode ser negativo")
 	private Double value;
 	
-	@NotNull(message = "Preenchimento Obrigatório")
+	@JsonFormat(pattern = "dd/MM/yyyy")
 	private LocalDate date;
 	
 	public ExpenseDTO() {

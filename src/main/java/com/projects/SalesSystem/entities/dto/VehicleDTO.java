@@ -12,6 +12,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.projects.SalesSystem.entities.Vehicle;
 
 public class VehicleDTO implements Serializable{
@@ -35,14 +36,14 @@ public class VehicleDTO implements Serializable{
 	@Size(min = 4, max = 4, message = "Deve ter 4 letras")
 	private String year;
 	
-	@NotNull(message = "Preenchimento Obrigatório")
+	@JsonFormat(pattern = "dd/MM/yyyy")
 	private LocalDate date;
 	
 	@NotEmpty(message = "Preenchimento Obrigatório")
 	@Size(min = 7, max = 7, message = "Deve ter 7 letras")
 	private String licensePlate;
 	
-	@NotEmpty(message = "Preenchimento Obrigatório")
+	@NotNull(message = "Preenchimento Obrigatório")
 	private String description;
 	
 	@NotNull(message = "Preenchimento Obrigatório")

@@ -17,12 +17,13 @@ import com.projects.SalesSystem.entities.Expense;
 import com.projects.SalesSystem.entities.Person;
 import com.projects.SalesSystem.entities.User;
 import com.projects.SalesSystem.entities.Vehicle;
-import com.projects.SalesSystem.entities.dto.ExpenseDTO;
 import com.projects.SalesSystem.entities.dto.PersonDTO;
 import com.projects.SalesSystem.entities.dto.VehicleDTO;
 import com.projects.SalesSystem.entities.enums.Bank;
 import com.projects.SalesSystem.entities.enums.VehicleType;
 import com.projects.SalesSystem.repositories.VehicleRepository;
+import com.projects.SalesSystem.security.UserSS;
+import com.projects.SalesSystem.services.exceptions.AuthorizationException;
 import com.projects.SalesSystem.services.exceptions.DataIntegrity;
 import com.projects.SalesSystem.services.exceptions.ObjectNotFound;
 
@@ -38,37 +39,45 @@ public class VehicleService {
 	@Autowired
 	private UserService userService;
 
-	
 	public Page<VehicleDTO> myStock(Pageable page) {
-		// Will be authenticated user, this user is a mockdata
-		User user = new User(null, "Felipe", "fe@gmail.com", "123", 50000.00, 60000.00);
+		UserSS authUser = userService.getAuthenticatedUser();
 
+		if (authUser == null) {
+			throw new AuthorizationException("Acesso Negado");
+		}
+
+		User user = userService.findUserByEmail(authUser.getUsername());
 		List<Long> vehiclesIds = user.getStock().stream().map(x -> x.getId()).collect(Collectors.toList());
 
 		return vehicleRepo.findByIdIn(vehiclesIds, page).map(x -> new VehicleDTO(x));
 	}
 
 	public Page<VehicleDTO> findByModelOrLicensePlate(Pageable page, String str) {
-		// Will be authenticated user, this user is a mockdata
-		User user = new User(null, "Felipe", "fe@gmail.com", "123", 50000.00, 60000.00);
+		UserSS authUser = userService.getAuthenticatedUser();
 
+		if (authUser == null) {
+			throw new AuthorizationException("Acesso Negado");
+		}
+
+		User user = userService.findUserByEmail(authUser.getUsername());
 		List<Long> vehiclesIds = user.getStock().stream().map(x -> x.getId()).collect(Collectors.toList());
-		
+
 		boolean hasNumber = false;
 		Page<Vehicle> vehicles;
-		
-		if (str.endsWith("0") || str.endsWith("1") || str.endsWith("2") || str.endsWith("3") || str.endsWith("4") || str.endsWith("5") || str.endsWith("6")
-				|| str.endsWith("7") || str.endsWith("8") || str.endsWith("9")) {
+
+		if (str.endsWith("0") || str.endsWith("1") || str.endsWith("2") || str.endsWith("3") || str.endsWith("4")
+				|| str.endsWith("5") || str.endsWith("6") || str.endsWith("7") || str.endsWith("8")
+				|| str.endsWith("9")) {
 			hasNumber = true;
 		}
 
 		if (hasNumber) {
 			vehicles = vehicleRepo.findByLicensePlateIgnoreCaseAndIdIn(str, vehiclesIds, page);
-		
+
 		} else {
 			vehicles = vehicleRepo.findByModelContainingIgnoreCaseAndIdIn(str, vehiclesIds, page);
 		}
-		
+
 		return vehicles.map(x -> new VehicleDTO(x));
 	}
 
@@ -76,13 +85,21 @@ public class VehicleService {
 		Optional<Vehicle> obj = vehicleRepo.findById(id);
 		return obj.orElseThrow(() -> new ObjectNotFound("Objeto não encontrado! Id: " + id));
 	}
-	
+
 	public void insert(Vehicle obj) {
 		vehicleRepo.save(obj);
 	}
 
 	@Transactional
 	public VehicleDTO insertFromDTO(VehicleDTO obj) {
+		UserSS authUser = userService.getAuthenticatedUser();
+
+		if (authUser == null) {
+			throw new AuthorizationException("Acesso Negado");
+		}
+
+		User user = userService.findUserByEmail(authUser.getUsername());
+		
 		Person seller = new Person(obj.getSeller().getId(), obj.getSeller().getName(), obj.getSeller().getEmail(),
 				obj.getSeller().getCpf(), obj.getSeller().getTelephone());
 
@@ -93,51 +110,25 @@ public class VehicleService {
 
 		seller.setAddress(ad);
 
-		// Will be authenticated user, this user is a mockdata
-		User buyer = new User(null, "Felipe", "fe@gmail.com", "123", 50000.00, 60000.00);
-
 		Vehicle vehicle = new Vehicle(obj.getId(), VehicleType.toIntegerEnum(obj.getType()), obj.getBrand(),
 				obj.getModel(), obj.getYear(), LocalDate.now(), obj.getLicensePlate(), obj.getDescription(),
-				obj.getPaidValue(), Bank.toIntegerEnum(obj.getBank()), obj.getPossibleSellValue(), buyer, seller);
+				obj.getPaidValue(), Bank.toIntegerEnum(obj.getBank()), obj.getPossibleSellValue(), user, seller);
 
 		seller.getSales().add(vehicle);
 
-		buyer.getStock().add(vehicle);
+		user.getStock().add(vehicle);
 
 		if (vehicle.getBank().getDescription() == "Nubank") {
-			buyer.setNubankBalance(-vehicle.getPaidValue());
+			user.setNubankBalance(-vehicle.getPaidValue());
 		} else {
-			buyer.setSantanderBalance(-vehicle.getPaidValue());
+			user.setSantanderBalance(-vehicle.getPaidValue());
 		}
 
 		personService.insert(seller);
 		insert(vehicle);
-		userService.insert(buyer);
+		userService.insert(user);
 
 		return new VehicleDTO(vehicle);
-	}
-
-	@Transactional
-	public void insertExpenses(Long id, ExpenseDTO obj) {
-		Vehicle vehicle = findVehicleById(id);
-
-		Expense exp = new Expense(obj.getId(), obj.getName(), Bank.toIntegerEnum(obj.getBank()), obj.getValue(),
-				LocalDate.now(), vehicle);
-
-		vehicle.getExpenses().add(exp);
-
-		// wil be authenticated user, this user is a mockdata
-		User buyer = new User(null, "Felipe", "fe@gmail.com", "123", 50000.00, 60000.00);
-
-		if (exp.getBank().getDescription() == "Nubank") {
-			buyer.setNubankBalance(-exp.getValue());
-		} else {
-			buyer.setSantanderBalance(-exp.getValue());
-		}
-
-		expenseService.insert(exp);
-		insert(vehicle);
-		userService.insert(buyer);
 	}
 
 	public void update(VehicleDTO objDTO, Long id) {
@@ -153,38 +144,44 @@ public class VehicleService {
 	}
 
 	public void delete(Long id) {
-		// wil be authenticated user, this user is a mockdata
-		User buyer = new User(null, "Felipe", "fe@gmail.com", "123", 50000.00, 60000.00);
+		UserSS authUser = userService.getAuthenticatedUser();
 
-		Vehicle obj = findVehicleById(id);
-		Bank bank = obj.getBank();
-		Double value = obj.getPaidValue();
-		List<Expense> expenses = obj.getExpenses();
+		if (authUser == null) {
+			throw new AuthorizationException("Acesso Negado");
+		}
+
+		User user = userService.findUserByEmail(authUser.getUsername());
 
 		try {
-			for (Expense exp : expenses) {
-				expenseService.delete(exp.getId());
-
-				if (exp.getBank().getDescription() == "Nubank") {
-
-					buyer.setNubankBalance(exp.getValue());
-				} else {
-					buyer.setSantanderBalance(exp.getValue());
+			Vehicle vehicle = findVehicleById(id);
+			
+			if(vehicle.getBank().getDescription() == "Nubank") {
+				user.setNubankBalance(vehicle.getPaidValue());
+			}
+			else {
+				user.setSantanderBalance(vehicle.getPaidValue());
+			}
+			
+			for(Expense exp: vehicle.getExpenses()) {
+				if(exp.getBank().getDescription() == "Nubank") {
+					user.setNubankBalance(exp.getValue());
 				}
+				else {
+					user.setSantanderBalance(exp.getValue());
+				}
+				expenseService.delete(exp.getId());
 			}
-
+			
+			userService.insert(user);
+			
+			Long sellerId = vehicle.getSeller().getId();
+			
+			
 			vehicleRepo.deleteById(id);
-
-			if (bank.getDescription() == "Nubank") {
-				buyer.setNubankBalance(value);
-			} else {
-				buyer.setSantanderBalance(value);
-			}
-
-			personService.delete(obj.getSeller().getId());
-			userService.insert(buyer);
+			personService.delete(sellerId);
+		
 		} catch (DataIntegrityViolationException e) {
-			throw new DataIntegrity("Não é possível deletar pois esse veículo tem elementos associados");
+			throw new DataIntegrity("Não é possível deletar esse veículo! Este veículo já foi vendido.");
 		}
 	}
 

@@ -78,6 +78,7 @@ public class WithdrawService {
 		return new WithdrawDTO(withdraw);
 	}
 
+	@Transactional
 	public void delete(Long id) {
 		UserSS authUser = userService.getAuthenticatedUser();
 

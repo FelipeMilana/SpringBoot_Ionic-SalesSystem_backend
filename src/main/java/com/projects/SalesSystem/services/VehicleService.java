@@ -143,6 +143,7 @@ public class VehicleService {
 		personService.insert(dbPerson);
 	}
 
+	@Transactional
 	public void delete(Long id) {
 		UserSS authUser = userService.getAuthenticatedUser();
 

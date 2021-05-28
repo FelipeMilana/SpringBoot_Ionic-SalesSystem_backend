@@ -30,7 +30,7 @@ public class WithdrawController {
 	private WithdrawService withdrawService;
 	
 	@GetMapping
-	public ResponseEntity<Page<WithdrawDTO>> myWithdraws(@PageableDefault(page = 0, size = 10, sort = "date", direction = Sort.Direction.ASC) Pageable page) {
+	public ResponseEntity<Page<WithdrawDTO>> myWithdraws(@PageableDefault(page = 0, size = 10, sort = "date", direction = Sort.Direction.DESC) Pageable page) {
 		Page<WithdrawDTO> withdraws = withdrawService.myWithdraws(page);
 		return ResponseEntity.ok().body(withdraws);
 	}

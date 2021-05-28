@@ -18,6 +18,7 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import com.projects.SalesSystem.entities.enums.Bank;
+import com.projects.SalesSystem.entities.enums.Status;
 import com.projects.SalesSystem.entities.enums.VehicleType;
 
 @Entity
@@ -39,6 +40,7 @@ public class Vehicle  implements Serializable{
 	private Double paidValue;
 	private Integer bank;
 	private Double possibleSellValue;
+	private Integer status;
 	
 	//associations
 	@OneToMany(mappedBy = "vehicle")
@@ -57,7 +59,7 @@ public class Vehicle  implements Serializable{
 	}
 
 	public Vehicle(Long id, VehicleType type, String brand, String model, String year, LocalDate date, String licensePlate,
-			String description, Double paidValue, Bank bank, Double possibleSellValue, User buyer, Person seller) {
+			String description, Double paidValue, Bank bank, Double possibleSellValue, Status status, User buyer, Person seller) {
 		this.id = id;
 		this.type = (type==null) ? null : type.getCode();
 		this.brand = brand;
@@ -69,6 +71,7 @@ public class Vehicle  implements Serializable{
 		this.paidValue = paidValue;
 		this.bank = (bank==null) ? null : bank.getCode();
 		this.possibleSellValue = possibleSellValue;
+		this.status = (status==null) ? null : status.getCode();
 		this.buyer = buyer;
 		this.seller = seller;
 	}
@@ -161,6 +164,14 @@ public class Vehicle  implements Serializable{
 		this.possibleSellValue = possibleSellValue;
 	}
 
+	public Status getStatus() {
+		return Status.toIntegerEnum(status);
+	}
+
+	public void setStatus(Status status) {
+		this.status = status.getCode();
+	}
+	
 	public List<Expense> getExpenses() {
 		return expenses;
 	}

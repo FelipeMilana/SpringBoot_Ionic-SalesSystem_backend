@@ -35,7 +35,7 @@ public class User implements Serializable {
 
 	@OneToMany(mappedBy = "buyer")
 	@LazyCollection(LazyCollectionOption.FALSE)
-	private List<Vehicle> stock = new ArrayList<>();
+	private List<Vehicle> vehicles = new ArrayList<>();
 
 	@OneToMany(mappedBy = "seller")
 	@LazyCollection(LazyCollectionOption.FALSE)
@@ -106,8 +106,8 @@ public class User implements Serializable {
 		return withdraws;
 	}
 
-	public List<Vehicle> getStock() {
-		return stock;
+	public List<Vehicle> getVehicles() {
+		return vehicles;
 	}
 
 	public List<Sale> getSales() {

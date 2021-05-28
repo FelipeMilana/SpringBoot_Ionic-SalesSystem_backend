@@ -20,6 +20,7 @@ import com.projects.SalesSystem.entities.Vehicle;
 import com.projects.SalesSystem.entities.dto.PersonDTO;
 import com.projects.SalesSystem.entities.dto.VehicleDTO;
 import com.projects.SalesSystem.entities.enums.Bank;
+import com.projects.SalesSystem.entities.enums.Status;
 import com.projects.SalesSystem.entities.enums.VehicleType;
 import com.projects.SalesSystem.repositories.VehicleRepository;
 import com.projects.SalesSystem.security.UserSS;
@@ -47,9 +48,13 @@ public class VehicleService {
 		}
 
 		User user = userService.findUserByEmail(authUser.getUsername());
-		List<Long> vehiclesIds = user.getStock().stream().map(x -> x.getId()).collect(Collectors.toList());
-
-		return vehicleRepo.findByIdIn(vehiclesIds, page).map(x -> new VehicleDTO(x));
+		
+		List<Long> idsInStock  = user.getVehicles().stream()
+									.filter(x -> x.getStatus().getDescription().equals("Estoque"))
+									.map(x -> x.getId())
+									.collect(Collectors.toList());
+	
+		return vehicleRepo.findByIdIn(idsInStock, page).map(x -> new VehicleDTO(x));
 	}
 
 	public Page<VehicleDTO> findByModelOrLicensePlate(Pageable page, String str) {
@@ -60,7 +65,10 @@ public class VehicleService {
 		}
 
 		User user = userService.findUserByEmail(authUser.getUsername());
-		List<Long> vehiclesIds = user.getStock().stream().map(x -> x.getId()).collect(Collectors.toList());
+		List<Long> idsInStock  = user.getVehicles().stream()
+				.filter(x -> x.getStatus().getDescription().equals("Estoque"))
+				.map(x -> x.getId())
+				.collect(Collectors.toList());
 
 		boolean hasNumber = false;
 		Page<Vehicle> vehicles;
@@ -72,10 +80,10 @@ public class VehicleService {
 		}
 
 		if (hasNumber) {
-			vehicles = vehicleRepo.findByLicensePlateIgnoreCaseAndIdIn(str, vehiclesIds, page);
+			vehicles = vehicleRepo.findByLicensePlateIgnoreCaseAndIdIn(str, idsInStock, page);
 
 		} else {
-			vehicles = vehicleRepo.findByModelContainingIgnoreCaseAndIdIn(str, vehiclesIds, page);
+			vehicles = vehicleRepo.findByModelContainingIgnoreCaseAndIdIn(str, idsInStock, page);
 		}
 
 		return vehicles.map(x -> new VehicleDTO(x));
@@ -112,11 +120,11 @@ public class VehicleService {
 
 		Vehicle vehicle = new Vehicle(obj.getId(), VehicleType.toIntegerEnum(obj.getType()), obj.getBrand(),
 				obj.getModel(), obj.getYear(), LocalDate.now(), obj.getLicensePlate(), obj.getDescription(),
-				obj.getPaidValue(), Bank.toIntegerEnum(obj.getBank()), obj.getPossibleSellValue(), user, seller);
+				obj.getPaidValue(), Bank.toIntegerEnum(obj.getBank()), obj.getPossibleSellValue(), Status.STOCK, user, seller);
 
 		seller.getSales().add(vehicle);
 
-		user.getStock().add(vehicle);
+		user.getVehicles().add(vehicle);
 
 		if (vehicle.getBank().getDescription() == "Nubank") {
 			user.setNubankBalance(-vehicle.getPaidValue());

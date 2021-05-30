@@ -22,6 +22,7 @@ public class Withdraw implements Serializable{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	private String name;
 	private Integer bank;
 	private Double value;
 	private LocalDate date;
@@ -33,8 +34,9 @@ public class Withdraw implements Serializable{
 	public Withdraw() {
 	}
 
-	public Withdraw(Long id, Bank bank, Double value, LocalDate date, User user) {
+	public Withdraw(Long id, String name, Bank bank, Double value, LocalDate date, User user) {
 		this.id = id;
+		this.name = name;
 		this.bank = (bank==null) ? null : bank.getCode();
 		this.value = value;
 		this.date = date;
@@ -47,6 +49,14 @@ public class Withdraw implements Serializable{
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public Bank getBank() {

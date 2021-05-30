@@ -3,6 +3,7 @@ package com.projects.SalesSystem.entities.dto;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 
@@ -14,6 +15,9 @@ public class WithdrawDTO implements Serializable{
 	private static final long serialVersionUID = 1L;
 
 	private Long id;
+	
+	@NotEmpty(message = "Preenchimento Obrigatório")
+	private String name;
 	
 	@NotNull(message = "Preenchimento Obrigatório")
 	private Integer bank;
@@ -30,13 +34,15 @@ public class WithdrawDTO implements Serializable{
 	
 	public WithdrawDTO(Withdraw obj) {
 		id = obj.getId();
+		name = obj.getName();
 		bank = obj.getBank().getCode();
 		value = obj.getValue();
 		date = obj.getDate();
 	}
 	
-	public WithdrawDTO(Long id, Integer bank, Double value, LocalDate date) {
+	public WithdrawDTO(Long id, String name, Integer bank, Double value, LocalDate date) {
 		this.id = id;
+		this.name = name;
 		this.bank = bank;
 		this.value = value;
 		this.date = date;
@@ -48,6 +54,14 @@ public class WithdrawDTO implements Serializable{
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public Integer getBank() {

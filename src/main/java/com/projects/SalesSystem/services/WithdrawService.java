@@ -61,7 +61,7 @@ public class WithdrawService {
 
 		User user = userService.findUserByEmail(authUser.getUsername());
 
-		Withdraw withdraw = new Withdraw(obj.getId(), Bank.toIntegerEnum(obj.getBank()), obj.getValue(),
+		Withdraw withdraw = new Withdraw(obj.getId(), obj.getName(), Bank.toIntegerEnum(obj.getBank()), obj.getValue(),
 				LocalDate.now(), user);
 
 		user.getWithdraws().add(withdraw);

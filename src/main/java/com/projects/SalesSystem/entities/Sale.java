@@ -11,6 +11,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.projects.SalesSystem.entities.enums.Bank;
+
 @Entity
 @Table(name = "tb_sale")
 public class Sale implements Serializable{
@@ -22,6 +24,7 @@ public class Sale implements Serializable{
 	private Long id;
 	private LocalDate date;
 	private Double finalValue;
+	private Integer bank;
 	
 	@ManyToOne
 	@JoinColumn(name = "vehicle_id")
@@ -38,10 +41,11 @@ public class Sale implements Serializable{
 	public Sale() {
 	}
 	
-	public Sale(Long id, LocalDate date, Double finalValue, Vehicle vehicle, Person client, User seller) {
+	public Sale(Long id, LocalDate date, Double finalValue, Bank bank, Vehicle vehicle, Person client, User seller) {
 		this.id = id;
 		this.date = date;
 		this.finalValue = finalValue;
+		this.bank = (bank==null) ? null : bank.getCode();
 		this.vehicle = vehicle;
 		this.client = client;
 		this.seller = seller;
@@ -69,6 +73,14 @@ public class Sale implements Serializable{
 
 	public void setFinalValue(Double finalValue) {
 		this.finalValue = finalValue;
+	}
+	
+	public Bank getBank() {
+		return Bank.toIntegerEnum(bank);
+	}
+	
+	public void setBank(Bank bank) {
+		this.bank = bank.getCode();
 	}
 
 	public Vehicle getVehicle() {

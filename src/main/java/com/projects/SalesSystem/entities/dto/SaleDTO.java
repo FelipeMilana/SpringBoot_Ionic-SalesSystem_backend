@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.projects.SalesSystem.entities.Sale;
 
 public class SaleDTO implements Serializable{
@@ -15,12 +16,15 @@ public class SaleDTO implements Serializable{
 
 	private Long id;
 	
-	@NotNull(message = "Preenchimento Obrigatório")
+	@JsonFormat(pattern = "dd/MM/yyyy")
 	private LocalDate date;
 	
 	@NotNull(message = "Preenchimento Obrigatório")
 	@Positive(message  = "Valor precisa ser positivo")
 	private Double finalValue;
+	
+	@NotNull(message = "Preenchimento Obrigatório")
+	private Integer bank;
 	
 	private Double profit;
 	
@@ -36,16 +40,18 @@ public class SaleDTO implements Serializable{
 		id = obj.getId();
 		date = obj.getDate();
 		finalValue = obj.getFinalValue();
+		bank = obj.getBank().getCode();
 		profit = obj.getProfit();
 		vehicle = new VehicleDTO(obj.getVehicle());
 		client = new PersonDTO(obj.getClient());
 	}
 
-	public SaleDTO(Long id, LocalDate date, Double finalValue, Double profit, VehicleDTO vehicle, PersonDTO client,
+	public SaleDTO(Long id, LocalDate date, Double finalValue, Integer bank, Double profit, VehicleDTO vehicle, PersonDTO client,
 			UserDTO seller) {
 		this.id = id;
 		this.date = date;
 		this.finalValue = finalValue;
+		this.bank = bank;
 		this.profit = profit;
 		this.vehicle = vehicle;
 		this.client = client;
@@ -75,6 +81,14 @@ public class SaleDTO implements Serializable{
 		this.finalValue = finalValue;
 	}
 
+	public Integer getBank() {
+		return bank;
+	}
+	
+	public void setBank(Integer bank) {
+		this.bank = bank;
+	}
+	
 	public Double getProfit() {
 		return profit;
 	}

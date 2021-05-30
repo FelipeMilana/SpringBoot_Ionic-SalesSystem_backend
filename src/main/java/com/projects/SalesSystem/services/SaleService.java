@@ -11,12 +11,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.projects.SalesSystem.entities.Address;
+import com.projects.SalesSystem.entities.Expense;
 import com.projects.SalesSystem.entities.Person;
 import com.projects.SalesSystem.entities.Sale;
 import com.projects.SalesSystem.entities.User;
 import com.projects.SalesSystem.entities.Vehicle;
 import com.projects.SalesSystem.entities.dto.SaleDTO;
+import com.projects.SalesSystem.entities.enums.Bank;
+import com.projects.SalesSystem.entities.enums.Status;
 import com.projects.SalesSystem.repositories.SaleRepository;
+import com.projects.SalesSystem.security.UserSS;
+import com.projects.SalesSystem.services.exceptions.AuthorizationException;
 
 @Service
 public class SaleService {
@@ -31,18 +36,26 @@ public class SaleService {
 	private UserService userService;
 
 	public Page<SaleDTO> mySales(Pageable page) {
-		// Will be authenticated user, this user is a mockdata
-		User user = new User(null, "Felipe", "fe@gmail.com", "123", 50000.00, 60000.00);
+		UserSS authUser = userService.getAuthenticatedUser();
 
+		if (authUser == null) {
+			throw new AuthorizationException("Acesso Negado");
+		}
+
+		User user = userService.findUserByEmail(authUser.getUsername());
 		List<Long> salesIds = user.getSales().stream().map(x -> x.getId()).collect(Collectors.toList());
 
 		return saleRepo.findByIdIn(salesIds, page).map(x -> new SaleDTO(x));
 	}
 
 	public Page<SaleDTO> findByVehicleModelOrLicensePlate(Pageable page, String str) {
-		// Will be authenticated user, this user is a mockdata
-		User user = new User(null, "Felipe", "fe@gmail.com", "123", 50000.00, 60000.00);
+		UserSS authUser = userService.getAuthenticatedUser();
 
+		if (authUser == null) {
+			throw new AuthorizationException("Acesso Negado");
+		}
+
+		User user = userService.findUserByEmail(authUser.getUsername());
 		List<Long> salesIds = user.getSales().stream().map(x -> x.getId()).collect(Collectors.toList());
 
 		boolean hasNumber = false;
@@ -69,9 +82,13 @@ public class SaleService {
 	}
 
 	public Page<SaleDTO> monthlyReport(Pageable page, LocalDate startDate, LocalDate endDate) {
-		// Will be authenticated user, this user is a mockdata
-		User user = new User(null, "Felipe", "fe@gmail.com", "123", 50000.00, 60000.00);
+		UserSS authUser = userService.getAuthenticatedUser();
 
+		if (authUser == null) {
+			throw new AuthorizationException("Acesso Negado");
+		}
+
+		User user = userService.findUserByEmail(authUser.getUsername());
 		List<Long> salesIds = user.getSales().stream().map(x -> x.getId()).collect(Collectors.toList());
 		
 		return saleRepo.findByDateBetweenAndIdIn(startDate, endDate, salesIds, page).map(x -> new SaleDTO(x));
@@ -79,11 +96,33 @@ public class SaleService {
 
 	@Transactional
 	public SaleDTO insertFromDTO(Long id, SaleDTO objDTO) {
-		// Will be authenticated user, this user is a mockdata
-		User user = new User(null, "Felipe", "fe@gmail.com", "123", 50000.00, 60000.00);
+		UserSS authUser = userService.getAuthenticatedUser();
+
+		if (authUser == null) {
+			throw new AuthorizationException("Acesso Negado");
+		}
+
+		User user = userService.findUserByEmail(authUser.getUsername());
 
 		Vehicle vehicle = vehicleService.findVehicleById(id);
+		
 
+		if (vehicle.getBank().getDescription() == "Nubank") {
+			user.setNubankBalance(vehicle.getPaidValue());
+		} 
+		else {
+			user.setSantanderBalance(vehicle.getPaidValue());
+		}
+		
+		for(Expense exp: vehicle.getExpenses()) {
+			if(exp.getBank().getDescription() == "Nubank") {
+				user.setNubankBalance(exp.getValue());
+			}
+			else {
+				user.setSantanderBalance(exp.getValue());
+			}
+		}
+		
 		Person client = new Person(objDTO.getClient().getId(), objDTO.getClient().getName(),
 				objDTO.getClient().getEmail(), objDTO.getClient().getCpf(), objDTO.getClient().getTelephone());
 
@@ -94,20 +133,23 @@ public class SaleService {
 
 		client.setAddress(ad);
 
-		Sale sale = new Sale(objDTO.getId(), LocalDate.now(), objDTO.getFinalValue(), vehicle, client, user);
-
+		Sale sale = new Sale(objDTO.getId(), LocalDate.now(), objDTO.getFinalValue(), Bank.toIntegerEnum(objDTO.getBank()), vehicle, client, user);
+		vehicle.setStatus(Status.SOLD);
+		
 		client.getPurchases().add(sale);
-		user.getStock().remove(vehicle);
 		user.getSales().add(sale);
 
-		if (vehicle.getBank().getDescription() == "Nubank") {
-			user.setNubankBalance(sale.getFinalValue());
-		} else {
-			user.setSantanderBalance(sale.getFinalValue());
+		
+		if(sale.getBank().getDescription() == "Nubank") {
+			user.setNubankBalance(sale.getProfit());
+		}
+		else {
+			user.setSantanderBalance(sale.getProfit());
 		}
 
 		personService.insert(client);
 		insert(sale);
+		vehicleService.insert(vehicle);
 		userService.insert(user);
 
 		return new SaleDTO(sale);

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.projects.SalesSystem.entities.dto.BalanceDTO;
 import com.projects.SalesSystem.entities.dto.UserDTO;
 import com.projects.SalesSystem.services.UserService;
 
@@ -48,6 +49,12 @@ public class UserController {
 	@PutMapping(value = "/{id}")
 	public ResponseEntity<Void> update(@Valid @RequestBody UserDTO objDTO, @PathVariable Long id) {
 		userService.update(id, objDTO);
+		return ResponseEntity.noContent().build();
+	}
+	
+	@PutMapping(value = "/{id}/updateBalance")
+	public ResponseEntity<Void> updateBalance(@Valid @RequestBody BalanceDTO objDTO, @PathVariable Long id, @RequestParam(value = "bank") String bank) {
+		userService.updateBalance(objDTO, id, bank);
 		return ResponseEntity.noContent().build();
 	}
 }

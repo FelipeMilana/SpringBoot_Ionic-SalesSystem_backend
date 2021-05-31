@@ -8,6 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.projects.SalesSystem.entities.User;
+import com.projects.SalesSystem.entities.dto.BalanceDTO;
 import com.projects.SalesSystem.entities.dto.UserDTO;
 import com.projects.SalesSystem.repositories.UserRepository;
 import com.projects.SalesSystem.security.UserSS;
@@ -74,9 +75,27 @@ public class UserService {
 		insert(dbUser);
 	}
 	
+	public void updateBalance(BalanceDTO objDTO, Long id, String bank) {
+		User dbUser = findUserById(id);
+		dbUser = updatingBalance(dbUser, objDTO, bank);
+		insert(dbUser);
+	}
+	
 	private User updating(User obj, UserDTO objDTO) {
 		obj.setName(objDTO.getName());
 		obj.setPassword(encoder.encode(objDTO.getPassword()));
+		
+		return obj;
+	}
+	
+	private User updatingBalance(User obj, BalanceDTO objDTO, String bank)  {
+		
+		if(bank == "Nubank") {
+			obj.setNubankBalance(objDTO.getValue());
+		}
+		else {
+			obj.setSantanderBalance(objDTO.getValue());
+		}
 		
 		return obj;
 	}

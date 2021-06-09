@@ -33,6 +33,9 @@ public class PersonDTO implements Serializable{
 	@Size(min = 11, max = 11, message = "Verifique se o ddd foi adicionado")
 	private String telephone;
 	
+	@Size(min = 10, max = 10, message = "Verifique se o ddd foi adicionado")
+	private String telephone2;
+	
 	@Valid
 	private AddressDTO address;
 	
@@ -45,15 +48,17 @@ public class PersonDTO implements Serializable{
 		email = obj.getEmail();
 		cpf = obj.getCpf();
 		telephone = obj.getTelephone();
+		telephone2 = obj.getTelephone2();
 		address = new AddressDTO(obj.getAddress());
 	}
 
-	public PersonDTO(Long id, String name, String email, String cpf, String telephone, AddressDTO address) {
+	public PersonDTO(Long id, String name, String email, String cpf, String telephone, String telephone2, AddressDTO address) {
 		this.id = id;
 		this.name = name;
 		this.email = email;
 		this.cpf = cpf;
 		this.telephone = telephone;
+		this.telephone2 = telephone2;
 		this.address = address;
 	}
 
@@ -95,6 +100,14 @@ public class PersonDTO implements Serializable{
 
 	public void setTelephone(String telephone) {
 		this.telephone = telephone;
+	}
+	
+	public String getTelephone2() {
+		return telephone2;
+	}
+
+	public void setTelephone2(String telephone2) {
+		this.telephone2= telephone2;
 	}
 
 	public AddressDTO getAddress() {

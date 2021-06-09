@@ -26,6 +26,7 @@ public class Person implements Serializable{
 	private String email;
 	private String cpf;
 	private String telephone;
+	private String telephone2;
 	
 	@OneToOne(mappedBy = "person", cascade = CascadeType.ALL)
 	private Address address;
@@ -39,12 +40,13 @@ public class Person implements Serializable{
 	public Person() {
 	}
 
-	public Person(Long id, String name, String email, String cpf, String telephone) {
+	public Person(Long id, String name, String email, String cpf, String telephone, String telephone2) {
 		this.id = id;
 		this.name = name;
 		this.email = email;
 		this.cpf = cpf;
 		this.telephone = telephone;
+		this.telephone2 = telephone2;
 	}
 
 	public Long getId() {
@@ -85,6 +87,14 @@ public class Person implements Serializable{
 
 	public void setTelephone(String telephone) {
 		this.telephone = telephone;
+	}
+	
+	public String getTelephone2() {
+		return telephone2;
+	}
+
+	public void setTelephone2(String telephone2) {
+		this.telephone2 = telephone2;
 	}
 	
 	public Address getAddress() {

@@ -109,7 +109,7 @@ public class VehicleService {
 		User user = userService.findUserByEmail(authUser.getUsername());
 		
 		Person seller = new Person(obj.getSeller().getId(), obj.getSeller().getName(), obj.getSeller().getEmail(),
-				obj.getSeller().getCpf(), obj.getSeller().getTelephone());
+				obj.getSeller().getCpf(), obj.getSeller().getTelephone(), obj.getSeller().getTelephone2());
 
 		Address ad = new Address(obj.getSeller().getAddress().getId(), obj.getSeller().getAddress().getStreet(),
 				obj.getSeller().getAddress().getNumber(), obj.getSeller().getAddress().getDistrict(),

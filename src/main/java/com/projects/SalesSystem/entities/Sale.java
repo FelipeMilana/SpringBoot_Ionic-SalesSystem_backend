@@ -3,15 +3,15 @@ package com.projects.SalesSystem.entities;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
-
-import com.projects.SalesSystem.entities.enums.Bank;
 
 @Entity
 @Table(name = "tb_sale")
@@ -24,7 +24,7 @@ public class Sale implements Serializable{
 	private Long id;
 	private LocalDate date;
 	private Double finalValue;
-	private Integer bank;
+	
 	
 	@ManyToOne
 	@JoinColumn(name = "vehicle_id")
@@ -37,15 +37,17 @@ public class Sale implements Serializable{
 	@ManyToOne
 	@JoinColumn(name = "seller_id")
 	private User seller;
+	
+	@OneToOne(mappedBy = "sale", cascade = CascadeType.ALL)
+	private Payment payment;
 
 	public Sale() {
 	}
 	
-	public Sale(Long id, LocalDate date, Double finalValue, Bank bank, Vehicle vehicle, Person client, User seller) {
+	public Sale(Long id, LocalDate date, Double finalValue, Vehicle vehicle, Person client, User seller) {
 		this.id = id;
 		this.date = date;
 		this.finalValue = finalValue;
-		this.bank = (bank==null) ? null : bank.getCode();
 		this.vehicle = vehicle;
 		this.client = client;
 		this.seller = seller;
@@ -62,27 +64,19 @@ public class Sale implements Serializable{
 	public LocalDate getDate() {
 		return date;
 	}
-
+	
 	public void setDate(LocalDate date) {
 		this.date = date;
 	}
-
+	
 	public Double getFinalValue() {
 		return finalValue;
 	}
-
+	
 	public void setFinalValue(Double finalValue) {
 		this.finalValue = finalValue;
 	}
 	
-	public Bank getBank() {
-		return Bank.toIntegerEnum(bank);
-	}
-	
-	public void setBank(Bank bank) {
-		this.bank = bank.getCode();
-	}
-
 	public Vehicle getVehicle() {
 		return vehicle;
 	}
@@ -107,8 +101,16 @@ public class Sale implements Serializable{
 		this.seller = seller;
 	}
 
+	public Payment getPayment() {
+		return payment;
+	}
+	
+	public void setPayment(Payment payment) {
+		this.payment = payment;
+	}
+	
 	public Double getProfit() {
-		return finalValue - vehicle.getPaidValue() - vehicle.getExpenses().stream().mapToDouble(x -> x.getValue()).sum();
+		return getFinalValue() - vehicle.getPaidValue() - vehicle.getExpenses().stream().mapToDouble(x -> x.getValue()).sum();
 	}
 	
 	@Override

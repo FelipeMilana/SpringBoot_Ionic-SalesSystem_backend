@@ -8,7 +8,7 @@ import org.hibernate.validator.constraints.br.CNPJ;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.projects.SalesSystem.entities.ConsortiumWithExchangePayment;
 
-@JsonTypeName("pagamentoPorConsorcio")
+@JsonTypeName("pagamentoPorConsorcioComTroca")
 public class ConsortiumWithExchangePaymentDTO extends PaymentDTO {
 
 	private static final long serialVersionUID = 1L;

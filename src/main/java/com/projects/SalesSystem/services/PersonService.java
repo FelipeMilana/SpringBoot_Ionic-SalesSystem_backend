@@ -24,20 +24,24 @@ public class PersonService {
 					new ObjectNotFound("Objeto não encontrado! Id: " + id));
 	}
 	
+	public Person findPersonByCpf(String cpf) {
+		Person obj = personRepo.findByCpf(cpf);
+		
+		if(obj == null) {
+			throw new ObjectNotFound("Objeto não encontrado! CPF: " + cpf);
+		}
+		
+		return obj;
+	}
+	
 	public PersonDTO findById(Long id) {
 		Person obj = findPersonById(id);
 		return new PersonDTO(obj);
 	}
 	
 	public PersonDTO findByCpf(String cpf) {
-		Person obj = personRepo.findByCpf(cpf);
-		
-		if(obj != null) {
-			return new PersonDTO(obj); 
-		}
-		else {
-			throw new ObjectNotFound("Objeto não encontrado! CPF: " + cpf);
-		}
+		Person obj = findPersonByCpf(cpf);
+		return new PersonDTO(obj); 
 	}
 	
 	

@@ -108,16 +108,24 @@ public class VehicleService {
 
 		User user = userService.findUserByEmail(authUser.getUsername());
 		
-		Person seller = new Person(obj.getSeller().getId(), obj.getSeller().getName(), obj.getSeller().getEmail(),
+		Person seller;
+		
+		if(obj.getSeller().getId() == null) {
+			seller = new Person(obj.getSeller().getId(), obj.getSeller().getName(), obj.getSeller().getEmail(),
 				obj.getSeller().getCpf(), obj.getSeller().getTelephone(), obj.getSeller().getTelephone2());
 
-		Address ad = new Address(obj.getSeller().getAddress().getId(), obj.getSeller().getAddress().getStreet(),
+			Address ad = new Address(obj.getSeller().getAddress().getId(), obj.getSeller().getAddress().getStreet(),
 				obj.getSeller().getAddress().getNumber(), obj.getSeller().getAddress().getDistrict(),
 				obj.getSeller().getAddress().getPostalCode(), obj.getSeller().getAddress().getCity(),
 				obj.getSeller().getAddress().getState(), seller);
 
-		seller.setAddress(ad);
-
+			seller.setAddress(ad);
+		}
+		
+		else {
+			seller = personService.findPersonById(obj.getSeller().getId());
+		}
+		
 		Vehicle vehicle = new Vehicle(obj.getId(), VehicleType.toIntegerEnum(obj.getType()), obj.getBrand(),
 				obj.getModel(), obj.getYear(), LocalDate.now(), obj.getLicensePlate(), obj.getDescription(),
 				obj.getPaidValue(), Bank.toIntegerEnum(obj.getBank()), obj.getPossibleSellValue(), Status.STOCK, user, seller);

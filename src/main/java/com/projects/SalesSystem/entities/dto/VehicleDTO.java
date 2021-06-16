@@ -75,7 +75,7 @@ public class VehicleDTO implements Serializable{
 		licensePlate = obj.getLicensePlate();
 		description = obj.getDescription();
 		paidValue = obj.getPaidValue();
-		bank = obj.getBank().getCode();
+		bank = (obj.getBank()==null) ? null : obj.getBank().getCode();
 		possibleSellValue = obj.getPossibleSellValue();
 		seller = new PersonDTO(obj.getSeller());
 		expenses.addAll(obj.getExpenses().stream().map(x -> new ExpenseDTO(x)).collect(Collectors.toList()));

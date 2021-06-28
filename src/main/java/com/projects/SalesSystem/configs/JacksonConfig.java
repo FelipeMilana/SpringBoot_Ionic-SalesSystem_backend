@@ -9,6 +9,7 @@ import com.projects.SalesSystem.entities.dto.CashPaymentDTO;
 import com.projects.SalesSystem.entities.dto.CashWithExchangePaymentDTO;
 import com.projects.SalesSystem.entities.dto.ConsortiumPaymentDTO;
 import com.projects.SalesSystem.entities.dto.ConsortiumWithExchangePaymentDTO;
+import com.projects.SalesSystem.entities.dto.ExchangeWithCashbackPaymentDTO;
 import com.projects.SalesSystem.entities.dto.FundedPaymentDTO;
 import com.projects.SalesSystem.entities.dto.FundedWithExchangePaymentDTO;
 
@@ -27,6 +28,7 @@ public class JacksonConfig {
 				objectMapper.registerSubtypes(FundedWithExchangePaymentDTO.class);
 				objectMapper.registerSubtypes(ConsortiumPaymentDTO.class);
 				objectMapper.registerSubtypes(ConsortiumWithExchangePaymentDTO.class);
+				objectMapper.registerSubtypes(ExchangeWithCashbackPaymentDTO.class);
 				super.configure(objectMapper);
 			};
 		};

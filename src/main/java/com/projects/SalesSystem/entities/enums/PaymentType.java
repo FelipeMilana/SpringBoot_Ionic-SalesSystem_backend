@@ -7,7 +7,8 @@ public enum PaymentType {
 	CONSORTIUM(3, "Consorcio"),
 	CASHWITHEXCHANGE(4, "A Vista + Troca"),
 	FUNDEDWITHEXCHANGE(5, "Financiamento + Troca"),
-	CONSORTIUMWITHEXCHANGE(6, "Consorcio + Troca");
+	CONSORTIUMWITHEXCHANGE(6, "Consorcio + Troca"),
+	EXCHANGEWITHCASHBACK(7, "Troca com Troco");
 	
 	private int code;
 	private String description;

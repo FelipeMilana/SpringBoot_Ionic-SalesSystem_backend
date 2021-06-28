@@ -20,6 +20,7 @@ import com.projects.SalesSystem.entities.CashPayment;
 import com.projects.SalesSystem.entities.CashWithExchangePayment;
 import com.projects.SalesSystem.entities.ConsortiumPayment;
 import com.projects.SalesSystem.entities.ConsortiumWithExchangePayment;
+import com.projects.SalesSystem.entities.ExchangeWithCashbackPayment;
 import com.projects.SalesSystem.entities.FundedPayment;
 import com.projects.SalesSystem.entities.FundedWithExchangePayment;
 import com.projects.SalesSystem.entities.Payment;
@@ -32,6 +33,7 @@ import com.projects.SalesSystem.entities.dto.CashWithExchangePaymentDTO;
 import com.projects.SalesSystem.entities.dto.ConsortiumPaymentDTO;
 import com.projects.SalesSystem.entities.dto.ConsortiumWithExchangePaymentDTO;
 import com.projects.SalesSystem.entities.dto.ExchangeVehicleDTO;
+import com.projects.SalesSystem.entities.dto.ExchangeWithCashbackPaymentDTO;
 import com.projects.SalesSystem.entities.dto.ExpenseDTO;
 import com.projects.SalesSystem.entities.dto.FundedPaymentDTO;
 import com.projects.SalesSystem.entities.dto.FundedWithExchangePaymentDTO;
@@ -266,7 +268,7 @@ public class SaleService {
 			}
 		}
 		
-		else {
+		else if (objDTO.getPayment() instanceof ConsortiumWithExchangePaymentDTO){
 			ConsortiumWithExchangePaymentDTO payDTO = (ConsortiumWithExchangePaymentDTO) objDTO.getPayment();
 
 			exchange = addVehicleToStock(objDTO.getClient().getCpf(), payDTO.getExchangeVehicle(), user);
@@ -290,6 +292,23 @@ public class SaleService {
 			}
 			else {
 				user.setSantanderBalance(payDTO.getConsortiumValue());
+			}
+		}
+		
+		else {
+			ExchangeWithCashbackPaymentDTO payDTO = (ExchangeWithCashbackPaymentDTO) objDTO.getPayment();
+			
+			exchange = addVehicleToStock(objDTO.getClient().getCpf(), payDTO.getExchangeVehicle(), user);
+			
+			Payment pay = new ExchangeWithCashbackPayment(payDTO.getId(), sale, payDTO.getCashback(), Bank.toIntegerEnum(payDTO.getBank()), exchange);
+			pay.setPaymentType(PaymentType.EXCHANGEWITHCASHBACK);
+			sale.setPayment(pay);
+			
+			if(payDTO.getBank().equals(2)) {
+				user.setNubankBalance(-payDTO.getCashback());
+			}
+			else {
+				user.setSantanderBalance(-payDTO.getCashback());
 			}
 		}
 

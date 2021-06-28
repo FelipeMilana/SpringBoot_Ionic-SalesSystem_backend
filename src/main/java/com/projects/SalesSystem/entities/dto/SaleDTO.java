@@ -12,6 +12,7 @@ import com.projects.SalesSystem.entities.CashPayment;
 import com.projects.SalesSystem.entities.CashWithExchangePayment;
 import com.projects.SalesSystem.entities.ConsortiumPayment;
 import com.projects.SalesSystem.entities.ConsortiumWithExchangePayment;
+import com.projects.SalesSystem.entities.ExchangeWithCashbackPayment;
 import com.projects.SalesSystem.entities.FundedPayment;
 import com.projects.SalesSystem.entities.FundedWithExchangePayment;
 import com.projects.SalesSystem.entities.Sale;
@@ -74,9 +75,14 @@ public class SaleDTO implements Serializable{
 			payment = new ConsortiumPaymentDTO(pay);
 		}
 		
-		else {
+		else if(obj.getPayment() instanceof ConsortiumWithExchangePayment){
 			ConsortiumWithExchangePayment pay = (ConsortiumWithExchangePayment) obj.getPayment();
 			payment = new ConsortiumWithExchangePaymentDTO(pay);
+		}
+		
+		else {
+			ExchangeWithCashbackPayment pay = (ExchangeWithCashbackPayment) obj.getPayment();
+			payment = new ExchangeWithCashbackPaymentDTO(pay);
 		}
 		
 	}

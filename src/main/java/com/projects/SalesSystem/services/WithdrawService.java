@@ -46,6 +46,40 @@ public class WithdrawService {
 		
 	}
 
+	public Page<WithdrawDTO> findByNameOrBank(Pageable page, String str) {
+		
+		UserSS authUser = userService.getAuthenticatedUser();
+		
+		if (authUser == null) {
+			throw new AuthorizationException("Acesso Negado");
+		}
+
+		User user = userService.findUserByEmail(authUser.getUsername());
+
+		List<Long> withdrawIds = user.getWithdraws().stream().map(x -> x.getId()).collect(Collectors.toList());
+		
+		Page<Withdraw> withdraws;
+		
+		if(str.equalsIgnoreCase("Santander") || str.equalsIgnoreCase("Nubank")) {
+			
+			Integer number = null;
+			
+			if(str.equalsIgnoreCase("Santander")) {
+				number = 1;
+			}
+			else {
+				number = 2;
+			}
+			
+			withdraws = withdrawRepo.findByBankAndIdIn(number, withdrawIds, page);
+		}
+		else {
+			withdraws = withdrawRepo.findByNameContainingIgnoreCaseAndIdIn(str, withdrawIds, page);
+		}
+		
+		return withdraws.map(x -> new WithdrawDTO(x));
+	}
+	
 	public void insert(Withdraw obj) {
 		withdrawRepo.save(obj);
 	}

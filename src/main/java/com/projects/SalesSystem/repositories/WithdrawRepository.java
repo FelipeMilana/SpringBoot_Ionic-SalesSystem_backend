@@ -15,4 +15,10 @@ public interface WithdrawRepository extends JpaRepository<Withdraw, Long>{
 
 	@Transactional(readOnly = true)
 	Page<Withdraw> findByIdIn(List<Long> withdrawIds, Pageable page);
+	
+	@Transactional(readOnly = true)
+	Page<Withdraw> findByNameContainingIgnoreCaseAndIdIn(String name, List<Long> withdrawIds, Pageable page);
+	
+	@Transactional(readOnly = true)
+	Page<Withdraw> findByBankAndIdIn(Integer bank, List<Long> withdrawIds, Pageable page);
 }

@@ -27,14 +27,8 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 	
-	@GetMapping(value = "/{id}")
-	public ResponseEntity<UserDTO> findById(@PathVariable Long id) {
-		UserDTO user = userService.findById(id);
-		return ResponseEntity.ok().body(user);
-	}
-	
 	@GetMapping(value = "/email")
-	public ResponseEntity<UserDTO> findById(@RequestParam(value = "value") String email) {
+	public ResponseEntity<UserDTO> findByEmail(@RequestParam(value = "value") String email) {
 		UserDTO user = userService.findByEmail(email);
 		return ResponseEntity.ok().body(user);
 	}

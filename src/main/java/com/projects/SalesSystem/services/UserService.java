@@ -47,11 +47,6 @@ public class UserService {
 		}
 	}
 	
-	public UserDTO findById(Long id) {
-		User user = findUserById(id);
-		return new UserDTO(user);
-	}
-	
 	public UserDTO findByEmail(String email) {
 		User user = findUserByEmail(email);
 		return new UserDTO(user);
@@ -83,14 +78,17 @@ public class UserService {
 	
 	private User updating(User obj, UserDTO objDTO) {
 		obj.setName(objDTO.getName());
-		obj.setPassword(encoder.encode(objDTO.getPassword()));
+		
+		if(!obj.getPassword().equals(objDTO.getPassword())) {
+			obj.setPassword(encoder.encode(objDTO.getPassword()));
+		}
 		
 		return obj;
 	}
 	
 	private User updatingBalance(User obj, BalanceDTO objDTO, String bank)  {
 		
-		if(bank == "Nubank") {
+		if(bank.equalsIgnoreCase("Nubank")) {
 			obj.setNubankBalance(objDTO.getValue());
 		}
 		else {

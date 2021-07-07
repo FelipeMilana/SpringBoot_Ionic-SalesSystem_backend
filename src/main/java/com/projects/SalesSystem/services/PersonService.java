@@ -34,11 +34,6 @@ public class PersonService {
 		return obj;
 	}
 	
-	public PersonDTO findById(Long id) {
-		Person obj = findPersonById(id);
-		return new PersonDTO(obj);
-	}
-	
 	public PersonDTO findByCpf(String cpf) {
 		Person obj = findPersonByCpf(cpf);
 		return new PersonDTO(obj); 
@@ -58,5 +53,26 @@ public class PersonService {
 		catch(DataIntegrityViolationException e) {
 			throw new DataIntegrity("Não é possível deletar pois essa pessoa tem elementos associados");
 		}
+	}
+	
+	public void update(PersonDTO objDTO, Long id) {
+		Person dbPerson = findPersonById(id);
+		dbPerson = updating(dbPerson, objDTO);
+		insert(dbPerson);
+	}
+	
+	private Person updating(Person obj, PersonDTO objDTO) {
+		obj.setName(objDTO.getName());
+		obj.setEmail(objDTO.getEmail());
+		obj.setTelephone(objDTO.getTelephone());
+		obj.setTelephone2(objDTO.getTelephone2());
+		obj.getAddress().setStreet(objDTO.getAddress().getStreet());
+		obj.getAddress().setNumber(objDTO.getAddress().getNumber());
+		obj.getAddress().setDistrict(objDTO.getAddress().getDistrict());
+		obj.getAddress().setPostalCode(objDTO.getAddress().getPostalCode());
+		obj.getAddress().setCity(objDTO.getAddress().getCity());
+		obj.getAddress().setState(objDTO.getAddress().getState());
+
+		return obj;
 	}
 }

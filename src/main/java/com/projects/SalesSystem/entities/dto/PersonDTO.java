@@ -2,10 +2,7 @@ package com.projects.SalesSystem.entities.dto;
 
 import java.io.Serializable;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.br.CPF;
 
@@ -18,11 +15,8 @@ public class PersonDTO implements Serializable{
 	private Long id;
 	
 	@NotEmpty(message = "Preenchimento Obrigatório")
-	@Size(min = 3, max = 50, message = "O campo deve ter entre 3 e 50 letras")
 	private String name;
 	
-	@NotEmpty(message = "Preenchimento Obrigatório")
-	@Email(message = "Email inválido")
 	private String email;
 	
 	@NotEmpty(message = "Preenchimento Obrigatório")	
@@ -30,13 +24,10 @@ public class PersonDTO implements Serializable{
 	private String cpf;
 	
 	@NotEmpty(message = "Preenchimento Obrigatório")
-	@Size(min = 11, max = 11, message = "Verifique se o ddd foi adicionado")
 	private String telephone;
 	
-	@Size(min = 10, max = 10, message = "Verifique se o ddd foi adicionado")
 	private String telephone2;
 	
-	@Valid
 	private AddressDTO address;
 	
 	public PersonDTO() {

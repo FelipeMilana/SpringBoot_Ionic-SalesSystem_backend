@@ -2,9 +2,6 @@ package com.projects.SalesSystem.entities.dto;
 
 import java.io.Serializable;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
-
 import com.projects.SalesSystem.entities.Address;
 
 public class AddressDTO implements Serializable{
@@ -13,27 +10,16 @@ public class AddressDTO implements Serializable{
 	
 	private Long id;
 	
-	@NotEmpty(message = "Preenchimento Obrigatório")
-	@Size(min = 3, max = 80, message = "O campo deve ter entre 3 e 80 letras")
 	private String street;
 	
-	@NotEmpty(message = "Preenchimento Obrigatório")
 	private String number;
 	
-	@NotEmpty(message = "Preenchimento Obrigatório")
-	@Size(min = 3, max = 20, message = "O campo deve ter entre 3 e 20 letras")
 	private String district;
 	
-	@NotEmpty(message = "Preenchimento Obrigatório")
-	@Size(min = 8, max = 8, message = "O campo deve ter 8 letras")
 	private String postalCode;
 	
-	@NotEmpty(message = "Preenchimento Obrigatório")
-	@Size(min = 3, max = 20, message = "O campo deve ter entre 3 e 20 letras")
 	private String city;
 	
-	@NotEmpty(message = "Preenchimento Obrigatório")
-	@Size(min = 3, max = 20, message = "O campo deve ter entre 3 e 20 letras")
 	private String state;	
 	
 	public AddressDTO() {

@@ -3,13 +3,11 @@ package com.projects.SalesSystem.services;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.projects.SalesSystem.entities.Person;
 import com.projects.SalesSystem.entities.dto.PersonDTO;
 import com.projects.SalesSystem.repositories.PersonRepository;
-import com.projects.SalesSystem.services.exceptions.DataIntegrity;
 import com.projects.SalesSystem.services.exceptions.ObjectNotFound;
 
 @Service
@@ -42,17 +40,6 @@ public class PersonService {
 	
 	public void insert(Person obj) {
 		personRepo.save(obj);
-	}
-	
-	
-	public void delete(Long id) {
-		findPersonById(id);
-		try {
-			personRepo.deleteById(id);
-		}
-		catch(DataIntegrityViolationException e) {
-			throw new DataIntegrity("Não é possível deletar pois essa pessoa tem elementos associados");
-		}
 	}
 	
 	public void update(PersonDTO objDTO, Long id) {

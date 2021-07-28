@@ -17,7 +17,6 @@ import com.projects.SalesSystem.entities.Expense;
 import com.projects.SalesSystem.entities.Person;
 import com.projects.SalesSystem.entities.User;
 import com.projects.SalesSystem.entities.Vehicle;
-import com.projects.SalesSystem.entities.dto.PersonDTO;
 import com.projects.SalesSystem.entities.dto.VehicleDTO;
 import com.projects.SalesSystem.entities.enums.Bank;
 import com.projects.SalesSystem.entities.enums.Status;
@@ -93,6 +92,11 @@ public class VehicleService {
 		Optional<Vehicle> obj = vehicleRepo.findById(id);
 		return obj.orElseThrow(() -> new ObjectNotFound("Objeto não encontrado! Id: " + id));
 	}
+	
+	public VehicleDTO findById(Long id) {
+		Vehicle vehicle = findVehicleById(id);
+		return new VehicleDTO(vehicle);
+	}
 
 	public void insert(Vehicle obj) {
 		vehicleRepo.save(obj);
@@ -127,7 +131,8 @@ public class VehicleService {
 		}
 		
 		Vehicle vehicle = new Vehicle(obj.getId(), VehicleType.toIntegerEnum(obj.getType()), obj.getBrand(),
-				obj.getModel(), obj.getYear(), LocalDate.now(), obj.getLicensePlate(), obj.getDescription(),
+				obj.getModel(), obj.getVersion(), obj.getFabYear(), obj.getModYear(), obj.getColor(), obj.getMotor(),
+				LocalDate.now(), obj.getLicensePlate(), obj.getChassi(), obj.getRenavam(), obj.getDescription(),
 				obj.getPaidValue(), Bank.toIntegerEnum(obj.getBank()), obj.getPossibleSellValue(), Status.STOCK, user, seller);
 
 		seller.getSales().add(vehicle);
@@ -153,12 +158,6 @@ public class VehicleService {
 		vehicleRepo.save(dbVehicle);
 	}
 
-	public void updateSeller(PersonDTO objDTO, Long id) {
-		Person dbPerson = personService.findPersonById(id);
-		dbPerson = updatingSeller(dbPerson, objDTO);
-		personService.insert(dbPerson);
-	}
-
 	@Transactional
 	public void delete(Long id) {
 		UserSS authUser = userService.getAuthenticatedUser();
@@ -180,23 +179,12 @@ public class VehicleService {
 			}
 			
 			for(Expense exp: vehicle.getExpenses()) {
-				if(exp.getBank().getDescription() == "Nubank") {
-					user.setNubankBalance(exp.getValue());
-				}
-				else {
-					user.setSantanderBalance(exp.getValue());
-				}
 				expenseService.delete(exp.getId());
 			}
 			
+			vehicleRepo.deleteById(vehicle.getId());
 			userService.insert(user);
 			
-			Long sellerId = vehicle.getSeller().getId();
-			
-			
-			vehicleRepo.deleteById(id);
-			personService.delete(sellerId);
-		
 		} catch (DataIntegrityViolationException e) {
 			throw new DataIntegrity("Não é possível deletar esse veículo! Este veículo já foi vendido.");
 		}
@@ -206,24 +194,16 @@ public class VehicleService {
 		obj.setType(VehicleType.toIntegerEnum(objDTO.getType()));
 		obj.setBrand(objDTO.getBrand());
 		obj.setModel(objDTO.getModel());
-		obj.setYear(objDTO.getYear());
+		obj.setVersion(objDTO.getVersion());
+		obj.setFabYear(objDTO.getFabYear());
+		obj.setModYear(objDTO.getModYear());
+		obj.setColor(objDTO.getColor());
+		obj.setMotor(objDTO.getMotor());
 		obj.setLicensePlate(objDTO.getLicensePlate());
+		obj.setChassi(objDTO.getChassi());
+		obj.setRenavam(objDTO.getRenavam());
 		obj.setDescription(objDTO.getDescription());
 		obj.setPossibleSellValue(objDTO.getPossibleSellValue());
-
-		return obj;
-	}
-
-	private Person updatingSeller(Person obj, PersonDTO objDTO) {
-		obj.setName(objDTO.getName());
-		obj.setEmail(objDTO.getEmail());
-		obj.setTelephone(objDTO.getTelephone());
-		obj.getAddress().setStreet(objDTO.getAddress().getStreet());
-		obj.getAddress().setNumber(objDTO.getAddress().getNumber());
-		obj.getAddress().setDistrict(objDTO.getAddress().getDistrict());
-		obj.getAddress().setPostalCode(objDTO.getAddress().getPostalCode());
-		obj.getAddress().setCity(objDTO.getAddress().getCity());
-		obj.getAddress().setState(objDTO.getAddress().getState());
 
 		return obj;
 	}

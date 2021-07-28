@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.projects.SalesSystem.entities.dto.PersonDTO;
 import com.projects.SalesSystem.entities.dto.VehicleDTO;
 import com.projects.SalesSystem.services.VehicleService;
 
@@ -46,6 +45,12 @@ public class VehicleController {
 		return ResponseEntity.ok().body(vehicles);
 	}
 	
+	@GetMapping(value = "/{id}")
+	public ResponseEntity<VehicleDTO> findById(@PathVariable Long id) {
+		VehicleDTO vehicle = vehicleService.findById(id);
+		return ResponseEntity.ok().body(vehicle);
+	}
+	
 	@PostMapping
 	public ResponseEntity<Void> insert(@Valid @RequestBody VehicleDTO objDTO) {
 		VehicleDTO vehicle = vehicleService.insertFromDTO(objDTO);
@@ -56,12 +61,6 @@ public class VehicleController {
 	@PutMapping(value = "/{id}")
 	public ResponseEntity<Void> update(@Valid @RequestBody VehicleDTO objDTO, @PathVariable Long id) {
 		vehicleService.update(objDTO, id);
-		return ResponseEntity.noContent().build();
-	}
-	
-	@PutMapping(value = "/seller/{id}")
-	public ResponseEntity<Void> updateSeller(@Valid @RequestBody PersonDTO objDTO, @PathVariable Long id) {
-		vehicleService.updateSeller(objDTO, id);
 		return ResponseEntity.noContent().build();
 	}
 	

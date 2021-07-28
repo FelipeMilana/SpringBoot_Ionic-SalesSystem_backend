@@ -33,9 +33,15 @@ public class Vehicle  implements Serializable{
 	private Integer type;
 	private String brand;
 	private String model;
-	private String year;
+	private String version;
+	private String fabYear;
+	private String modYear;
+	private String color;
+	private String motor;
 	private LocalDate date;
 	private String licensePlate;
+	private String chassi;
+	private String renavam;
 	private String description;
 	private Double paidValue;
 	private Integer bank;
@@ -58,15 +64,22 @@ public class Vehicle  implements Serializable{
 	public Vehicle() {
 	}
 
-	public Vehicle(Long id, VehicleType type, String brand, String model, String year, LocalDate date, String licensePlate,
-			String description, Double paidValue, Bank bank, Double possibleSellValue, Status status, User buyer, Person seller) {
+	public Vehicle(Long id, VehicleType type, String brand, String model, String version, String fabYear, String modYear, String color,
+			String motor, LocalDate date, String licensePlate, String chassi, String renavam, String description, Double paidValue, 
+			Bank bank, Double possibleSellValue, Status status, User buyer, Person seller) {
 		this.id = id;
 		this.type = (type==null) ? null : type.getCode();
 		this.brand = brand;
 		this.model = model;
-		this.year = year;
+		this.version = version;
+		this.fabYear = fabYear;
+		this.modYear = modYear;
+		this.color = color;
+		this.motor = motor;
 		this.date = date;
 		this.licensePlate = licensePlate;
+		this.chassi = chassi;
+		this.renavam = renavam;
 		this.description = description;
 		this.paidValue = paidValue;
 		this.bank = (bank==null) ? null : bank.getCode();
@@ -108,12 +121,44 @@ public class Vehicle  implements Serializable{
 		this.model = model;
 	}
 
-	public String getYear() {
-		return year;
+	public String getVersion() {
+		return version;
 	}
-
-	public void setYear(String year) {
-		this.year = year;
+	
+	public void setVersion(String version) {
+		this.version = version;
+	}
+	
+	public String getFabYear() {
+		return fabYear;
+	}
+	
+	public void setFabYear(String fabYear) {
+		this.fabYear = fabYear;
+	}
+	
+	public String getModYear() {
+		return modYear;
+	}
+	
+	public void setModYear(String modYear) {
+		this.modYear = modYear;
+	}
+	
+	public String getColor() {
+		return color;
+	}
+	
+	public void setColor(String color) {
+		this.color = color;
+	}
+	
+	public String getMotor() {
+		return motor;
+	}
+	
+	public void setMotor(String motor) {
+		this.motor = motor;
 	}
 
 	public LocalDate getDate() {
@@ -132,6 +177,22 @@ public class Vehicle  implements Serializable{
 		this.licensePlate = licensePlate;
 	}
 
+	public String getChassi() {
+		return chassi;
+	}
+	
+	public void setChassi(String chassi) {
+		this.chassi = chassi;
+	}
+	
+	public String getRenavam() {
+		return renavam;
+	}
+	
+	public void setRenavam(String renavam) {
+		this.renavam = renavam;
+	}
+	
 	public String getDescription() {
 		return description;
 	}

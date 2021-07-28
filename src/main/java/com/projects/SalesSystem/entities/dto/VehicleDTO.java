@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -25,16 +24,25 @@ public class VehicleDTO implements Serializable{
 	private Integer type;
 	
 	@NotEmpty(message = "Preenchimento Obrigatório")
-	@Size(min = 2, message = "Deve ter no mínimo 2 letras")
 	private String brand;
 	
 	@NotEmpty(message = "Preenchimento Obrigatório")
-	@Size(min = 2, message = "Deve ter no mínimo 2 letras")
 	private String model;
 	
 	@NotEmpty(message = "Preenchimento Obrigatório")
-	@Size(min = 4, max = 4, message = "Deve ter 4 letras")
-	private String year;
+	private String version;
+	
+	@NotEmpty(message = "Preenchimento Obrigatório")
+	private String fabYear;
+	
+	@NotEmpty(message = "Preenchimento Obrigatório")
+	private String modYear;
+	
+	@NotEmpty(message = "Preenchimento Obrigatório")
+	private String color;
+	
+	@NotEmpty(message = "Preenchimento Obrigatório")
+	private String motor;
 	
 	@JsonFormat(pattern = "dd/MM/yyyy")
 	private LocalDate date;
@@ -43,18 +51,23 @@ public class VehicleDTO implements Serializable{
 	@Size(min = 7, max = 7, message = "Deve ter 7 letras")
 	private String licensePlate;
 	
-	@NotNull(message = "Preenchimento Obrigatório")
+	@NotEmpty(message = "Preenchimento Obrigatório")
+	@Size(min = 17, max = 17, message = "Deve ter 17 letras")
+	private String chassi;
+	
+	@NotEmpty(message = "Preenchimento Obrigatório")
+	@Size(min = 11, max = 11, message = "Deve ter 11 letras")
+	private String renavam;
+	
 	private String description;
 	
 	@NotNull(message = "Preenchimento Obrigatório")
-	@Positive(message  = "Valor precisa ser positivo")
 	private Double paidValue;
 	
 	@NotNull(message = "Preenchimento Obrigatório")
 	private Integer bank;
 	
 	@NotNull(message = "Preenchimento Obrigatório")
-	@Positive(message  = "Valor precisa ser positivo")
 	private Double possibleSellValue;
 	
 	@Valid
@@ -70,9 +83,15 @@ public class VehicleDTO implements Serializable{
 		type = obj.getType().getCode();
 		brand = obj.getBrand();
 		model = obj.getModel();
-		year = obj.getYear();
+		version = obj.getVersion();
+		fabYear = obj.getFabYear();
+		modYear = obj.getModYear();
+		color = obj.getColor();
+		motor = obj.getMotor();
 		date = obj.getDate();
 		licensePlate = obj.getLicensePlate();
+		chassi = obj.getChassi();
+		renavam = obj.getRenavam();
 		description = obj.getDescription();
 		paidValue = obj.getPaidValue();
 		bank = (obj.getBank()==null) ? null : obj.getBank().getCode();
@@ -81,16 +100,22 @@ public class VehicleDTO implements Serializable{
 		expenses.addAll(obj.getExpenses().stream().map(x -> new ExpenseDTO(x)).collect(Collectors.toList()));
 	}
 
-	public VehicleDTO(Long id, Integer type, String brand, String model, String year, LocalDate date,
-			String licensePlate, String description, Double paidValue, Integer bank, Double possibleSellValue,
-			UserDTO buyer, PersonDTO seller) {
+	public VehicleDTO(Long id, Integer type, String brand, String model, String version, String fabYear, String modYear, String color,
+			String motor, LocalDate date, String licensePlate, String chassi, String renavam, String description, Double paidValue, 
+			Integer bank, Double possibleSellValue,UserDTO buyer, PersonDTO seller) {
 		this.id = id;
 		this.type = type;
 		this.brand = brand;
 		this.model = model;
-		this.year = year;
+		this.version = version;
+		this.fabYear = fabYear;
+		this.modYear = modYear;
+		this.color = color;
+		this.motor = motor;
 		this.date = date;
 		this.licensePlate = licensePlate;
+		this.chassi = chassi;
+		this.renavam = renavam;
 		this.description = description;
 		this.paidValue = paidValue;
 		this.bank = bank;
@@ -130,12 +155,44 @@ public class VehicleDTO implements Serializable{
 		this.model = model;
 	}
 
-	public String getYear() {
-		return year;
+	public String getVersion() {
+		return version;
 	}
-
-	public void setYear(String year) {
-		this.year = year;
+	
+	public void setVersion(String version) {
+		this.version = version;
+	}
+	
+	public String getFabYear() {
+		return fabYear;
+	}
+	
+	public void setFabYear(String fabYear) {
+		this.fabYear = fabYear;
+	}
+	
+	public String getModYear() {
+		return modYear;
+	}
+	
+	public void setModYear(String modYear) {
+		this.modYear = modYear;
+	}
+	
+	public String getColor() {
+		return color;
+	}
+	
+	public void setColor(String color) {
+		this.color = color;
+	}
+	
+	public String getMotor() {
+		return motor;
+	}
+	
+	public void setMotor(String motor) {
+		this.motor = motor;
 	}
 
 	public LocalDate getDate() {
@@ -152,6 +209,22 @@ public class VehicleDTO implements Serializable{
 
 	public void setLicensePlate(String licensePlate) {
 		this.licensePlate = licensePlate;
+	}
+	
+	public String getChassi() {
+		return chassi;
+	}
+	
+	public void setChassi(String chassi) {
+		this.chassi = chassi;
+	}
+	
+	public String getRenavam() {
+		return renavam;
+	}
+	
+	public void setRenavam(String renavam) {
+		this.renavam = renavam;
 	}
 
 	public String getDescription() {

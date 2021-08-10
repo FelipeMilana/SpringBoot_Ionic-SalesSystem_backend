@@ -31,6 +31,12 @@ public class SaleController {
 	@Autowired
 	private SaleService saleService;
 	
+	@GetMapping(value = "/{id}")
+	public ResponseEntity<SaleDTO> findById(@PathVariable Long id) {
+		SaleDTO sale = saleService.findById(id);
+		return ResponseEntity.ok().body(sale);
+	}
+	
 	@GetMapping
 	public ResponseEntity<Page<SaleDTO>> mySales(@PageableDefault(page = 0, size = 10, sort = "date", direction = Sort.Direction.DESC) Pageable page) {
 		Page<SaleDTO> sales = saleService.mySales(page);

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,7 @@ import com.projects.SalesSystem.entities.enums.VehicleType;
 import com.projects.SalesSystem.repositories.SaleRepository;
 import com.projects.SalesSystem.security.UserSS;
 import com.projects.SalesSystem.services.exceptions.AuthorizationException;
+import com.projects.SalesSystem.services.exceptions.ObjectNotFound;
 
 @Service
 public class SaleService {
@@ -59,6 +61,11 @@ public class SaleService {
 	private UserService userService;
 	@Autowired
 	private EmailService emailService;
+	
+	public SaleDTO findById(Long id) {
+		Optional<Sale> obj = saleRepo.findById(id);
+		return new SaleDTO(obj.orElseThrow(() -> new ObjectNotFound("Objeto não encontrado! Id: " + id)));
+	}
 
 	public Page<SaleDTO> mySales(Pageable page) {
 		UserSS authUser = userService.getAuthenticatedUser();
@@ -342,7 +349,7 @@ public class SaleService {
 			bw.newLine();
 
 			bw.write("Data" + ";" + "Cliente" + ";" + "Veiculo" + ";" + "Placa" + ";" + "Valor Pago (R$)" + ";"
-					+ "Despesas (R$)" + ";" + "Valor Vendido (R$)" + ";" + "Metodo de Pagamento" + ";" + "Lucro (R$)");
+					+ "Despesas (R$)" + ";" + "Valor Vendido (R$)" + ";" + "Forma de Pagamento" + ";" + "Lucro (R$)");
 			bw.newLine();
 
 			for (SaleDTO s : sales) {
@@ -364,6 +371,11 @@ public class SaleService {
 
 			bw.newLine();
 			bw.write("Lucro total (R$)" + ";" + totalProfit);
+			bw.newLine();
+			bw.write("Quantidade de Veiculos" + ";" + sales.getNumberOfElements());
+			bw.newLine();
+			bw.write("Ticket Medio (R$)" + ";" + totalProfit/sales.getNumberOfElements());
+			bw.newLine();
 			bw.close();
 		} catch (IOException e) {
 			throw new RuntimeException(e.getMessage());
@@ -376,8 +388,9 @@ public class SaleService {
 		Person client = personService.findPersonByCpf(cpf);
 
 		Vehicle exchange = new Vehicle(null, VehicleType.toIntegerEnum(objDTO.getType()), objDTO.getBrand(),
-				objDTO.getModel(), objDTO.getYear(), LocalDate.now(), objDTO.getLicensePlate(), objDTO.getDescription(),
-				objDTO.getPaidValue(), null, objDTO.getPossibleSellValue(), Status.STOCK, user, client);
+				objDTO.getModel(), objDTO.getVersion(), objDTO.getFabYear(), objDTO.getModYear(), objDTO.getColor(),
+				objDTO.getMotor(), LocalDate.now(), objDTO.getLicensePlate(), objDTO.getChassi(), objDTO.getRenavam(),
+				objDTO.getDescription(), objDTO.getPaidValue(), null, objDTO.getPossibleSellValue(), Status.STOCK, user, client);
 
 		client.getSales().add(exchange);
 		user.getVehicles().add(exchange);

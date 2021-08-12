@@ -13,6 +13,9 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import com.projects.SalesSystem.entities.User;
+import com.projects.SalesSystem.security.UserSS;
+import com.projects.SalesSystem.services.exceptions.AuthorizationException;
 import com.projects.SalesSystem.services.exceptions.EmailException;
 
 @Service
@@ -20,6 +23,8 @@ public class EmailService {
 
 	@Autowired
 	private JavaMailSender javaMailSender;
+	@Autowired
+	private UserService userService;
 	
 	private static final Logger LOG = LoggerFactory.getLogger(EmailService.class);
 	
@@ -34,13 +39,21 @@ public class EmailService {
 	}
 	
 	private MimeMessage prepareMimeMessage(File path) throws MessagingException {
+		UserSS authUser = userService.getAuthenticatedUser();
+
+		if (authUser == null) {
+			throw new AuthorizationException("Acesso Negado");
+		}
+
+		User user = userService.findUserByEmail(authUser.getUsername());
+		
 		MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 		MimeMessageHelper mmh = new MimeMessageHelper(mimeMessage, true);
-		mmh.setTo(System.getenv().get("USER_EMAIL"));
-		mmh.setSubject("Relatório Mensal");
+		mmh.setTo(user.getEmail());
+		mmh.setSubject("Relatório de Vendas");
 		mmh.setSentDate(new Date(System.currentTimeMillis()));
-		mmh.setText("Relatorio mensal enviado em anexo");
-		mmh.addAttachment("RelatorioMensal.csv", path);
+		mmh.setText("Relatorio de Vendas");
+		mmh.addAttachment("RelatorioDeVendas.xlsx", path);
 		return mimeMessage;
 	}
 	

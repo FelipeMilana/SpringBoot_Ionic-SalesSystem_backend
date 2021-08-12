@@ -1,11 +1,7 @@
 package com.projects.SalesSystem.services;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,7 +31,6 @@ import com.projects.SalesSystem.entities.dto.ConsortiumPaymentDTO;
 import com.projects.SalesSystem.entities.dto.ConsortiumWithExchangePaymentDTO;
 import com.projects.SalesSystem.entities.dto.ExchangeVehicleDTO;
 import com.projects.SalesSystem.entities.dto.ExchangeWithCashbackPaymentDTO;
-import com.projects.SalesSystem.entities.dto.ExpenseDTO;
 import com.projects.SalesSystem.entities.dto.FundedPaymentDTO;
 import com.projects.SalesSystem.entities.dto.FundedWithExchangePaymentDTO;
 import com.projects.SalesSystem.entities.dto.SaleDTO;
@@ -61,7 +56,9 @@ public class SaleService {
 	private UserService userService;
 	@Autowired
 	private EmailService emailService;
-	
+	@Autowired
+	private ExcelService excelService;
+
 	public SaleDTO findById(Long id) {
 		Optional<Sale> obj = saleRepo.findById(id);
 		return new SaleDTO(obj.orElseThrow(() -> new ObjectNotFound("Objeto não encontrado! Id: " + id)));
@@ -126,7 +123,7 @@ public class SaleService {
 		Page<SaleDTO> sales = saleRepo.findByDateBetweenAndIdIn(startDate, endDate, salesIds, page)
 				.map(x -> new SaleDTO(x));
 
-		File path = createCSVFIle(sales, startDate, endDate);
+		File path = excelService.createFile(sales, startDate, endDate);
 		emailService.sendMonthlyReportToEmail(path);
 
 		return sales;
@@ -145,21 +142,19 @@ public class SaleService {
 		Vehicle vehicle = vehicleService.findVehicleById(id);
 
 		Person client;
-		
-		if(objDTO.getClient().getId() == null) {
-		
-			client = new Person(objDTO.getClient().getId(), objDTO.getClient().getName(),
-				objDTO.getClient().getEmail(), objDTO.getClient().getCpf(), objDTO.getClient().getTelephone(),
-				objDTO.getClient().getTelephone2());
 
-			Address ad = new Address(objDTO.getClient().getAddress().getId(), objDTO.getClient().getAddress().getStreet(),
-				objDTO.getClient().getAddress().getNumber(), objDTO.getClient().getAddress().getDistrict(),
-				objDTO.getClient().getAddress().getPostalCode(), objDTO.getClient().getAddress().getCity(),
-				objDTO.getClient().getAddress().getState(), client);
+		if (objDTO.getClient().getId() == null) {
+
+			client = new Person(objDTO.getClient().getId(), objDTO.getClient().getName(), objDTO.getClient().getEmail(),
+					objDTO.getClient().getCpf(), objDTO.getClient().getTelephone(), objDTO.getClient().getTelephone2());
+
+			Address ad = new Address(objDTO.getClient().getAddress().getId(),
+					objDTO.getClient().getAddress().getStreet(), objDTO.getClient().getAddress().getNumber(),
+					objDTO.getClient().getAddress().getDistrict(), objDTO.getClient().getAddress().getPostalCode(),
+					objDTO.getClient().getAddress().getCity(), objDTO.getClient().getAddress().getState(), client);
 
 			client.setAddress(ad);
-		}
-		else {
+		} else {
 			client = personService.findPersonById(objDTO.getClient().getId());
 		}
 
@@ -230,10 +225,10 @@ public class SaleService {
 
 			exchange = addVehicleToStock(objDTO.getClient().getCpf(), payDTO.getExchangeVehicle(), user);
 
-			Payment pay = new FundedWithExchangePayment(payDTO.getId(), sale, payDTO.getName(), payDTO.getCnpj(), 
+			Payment pay = new FundedWithExchangePayment(payDTO.getId(), sale, payDTO.getName(), payDTO.getCnpj(),
 					payDTO.getTelephone(), payDTO.getInputValue(), Bank.toIntegerEnum(payDTO.getInputBank()),
 					payDTO.getFundedValue(), Bank.toIntegerEnum(payDTO.getFundedBank()), exchange);
-			
+
 			pay.setPaymentType(PaymentType.FUNDEDWITHEXCHANGE);
 			sale.setPayment(pay);
 
@@ -242,21 +237,21 @@ public class SaleService {
 			} else {
 				user.setSantanderBalance(payDTO.getInputValue());
 			}
-			
-			if(payDTO.getFundedBank().equals(2)) {
-				user.setNubankBalance(payDTO.getFundedValue());;
-			}
-			else {
+
+			if (payDTO.getFundedBank().equals(2)) {
+				user.setNubankBalance(payDTO.getFundedValue());
+				;
+			} else {
 				user.setSantanderBalance(payDTO.getFundedValue());
 			}
 		}
-		
+
 		else if (objDTO.getPayment() instanceof ConsortiumPaymentDTO) {
 			ConsortiumPaymentDTO payDTO = (ConsortiumPaymentDTO) objDTO.getPayment();
 
-			Payment pay = new ConsortiumPayment(payDTO.getId(), sale, payDTO.getName(), payDTO.getCnpj(), 
-					payDTO.getTelephone(), payDTO.getQuota(), payDTO.getGroup(), payDTO.getInputValue(), 
-					Bank.toIntegerEnum(payDTO.getInputBank()), payDTO.getConsortiumValue(), 
+			Payment pay = new ConsortiumPayment(payDTO.getId(), sale, payDTO.getName(), payDTO.getCnpj(),
+					payDTO.getTelephone(), payDTO.getQuota(), payDTO.getGroup(), payDTO.getInputValue(),
+					Bank.toIntegerEnum(payDTO.getInputBank()), payDTO.getConsortiumValue(),
 					Bank.toIntegerEnum(payDTO.getConsortiumBank()));
 
 			pay.setPaymentType(PaymentType.CONSORTIUM);
@@ -274,17 +269,17 @@ public class SaleService {
 				user.setSantanderBalance(payDTO.getConsortiumValue());
 			}
 		}
-		
-		else if (objDTO.getPayment() instanceof ConsortiumWithExchangePaymentDTO){
+
+		else if (objDTO.getPayment() instanceof ConsortiumWithExchangePaymentDTO) {
 			ConsortiumWithExchangePaymentDTO payDTO = (ConsortiumWithExchangePaymentDTO) objDTO.getPayment();
 
 			exchange = addVehicleToStock(objDTO.getClient().getCpf(), payDTO.getExchangeVehicle(), user);
 
-			Payment pay = new ConsortiumWithExchangePayment(payDTO.getId(), sale, payDTO.getName(), payDTO.getCnpj(), 
-					payDTO.getTelephone(), payDTO.getQuota(), payDTO.getGroup(), payDTO.getInputValue(), 
-					Bank.toIntegerEnum(payDTO.getInputBank()), payDTO.getConsortiumValue(), 
+			Payment pay = new ConsortiumWithExchangePayment(payDTO.getId(), sale, payDTO.getName(), payDTO.getCnpj(),
+					payDTO.getTelephone(), payDTO.getQuota(), payDTO.getGroup(), payDTO.getInputValue(),
+					Bank.toIntegerEnum(payDTO.getInputBank()), payDTO.getConsortiumValue(),
 					Bank.toIntegerEnum(payDTO.getConsortiumBank()), exchange);
-			
+
 			pay.setPaymentType(PaymentType.CONSORTIUMWITHEXCHANGE);
 			sale.setPayment(pay);
 
@@ -293,28 +288,28 @@ public class SaleService {
 			} else {
 				user.setSantanderBalance(payDTO.getInputValue());
 			}
-			
-			if(payDTO.getConsortiumBank().equals(2)) {
-				user.setNubankBalance(payDTO.getConsortiumValue());;
-			}
-			else {
+
+			if (payDTO.getConsortiumBank().equals(2)) {
+				user.setNubankBalance(payDTO.getConsortiumValue());
+				;
+			} else {
 				user.setSantanderBalance(payDTO.getConsortiumValue());
 			}
 		}
-		
+
 		else {
 			ExchangeWithCashbackPaymentDTO payDTO = (ExchangeWithCashbackPaymentDTO) objDTO.getPayment();
-			
+
 			exchange = addVehicleToStock(objDTO.getClient().getCpf(), payDTO.getExchangeVehicle(), user);
-			
-			Payment pay = new ExchangeWithCashbackPayment(payDTO.getId(), sale, payDTO.getCashback(), Bank.toIntegerEnum(payDTO.getBank()), exchange);
+
+			Payment pay = new ExchangeWithCashbackPayment(payDTO.getId(), sale, payDTO.getCashback(),
+					Bank.toIntegerEnum(payDTO.getBank()), exchange);
 			pay.setPaymentType(PaymentType.EXCHANGEWITHCASHBACK);
 			sale.setPayment(pay);
-			
-			if(payDTO.getBank().equals(2)) {
+
+			if (payDTO.getBank().equals(2)) {
 				user.setNubankBalance(-payDTO.getCashback());
-			}
-			else {
+			} else {
 				user.setSantanderBalance(-payDTO.getCashback());
 			}
 		}
@@ -332,57 +327,6 @@ public class SaleService {
 		return new SaleDTO(sale);
 	}
 
-	private File createCSVFIle(Page<SaleDTO> sales, LocalDate startDate, LocalDate endDate) {
-
-		File path = new File("C:\\temp\\ws - sts\\SalesSystem\\RelatórioMensal.csv");
-		double totalProfit = 0.0;
-
-		String date1 = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-				.format(LocalDate.of(startDate.getYear(), startDate.getMonthValue(), startDate.getDayOfMonth()));
-		String date2 = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-				.format(LocalDate.of(endDate.getYear(), endDate.getMonthValue(), endDate.getDayOfMonth()));
-
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(path))) {
-
-			bw.write("RELATORIO DE VENDAS: de " + date1 + " ate " + date2);
-			bw.newLine();
-			bw.newLine();
-
-			bw.write("Data" + ";" + "Cliente" + ";" + "Veiculo" + ";" + "Placa" + ";" + "Valor Pago (R$)" + ";"
-					+ "Despesas (R$)" + ";" + "Valor Vendido (R$)" + ";" + "Forma de Pagamento" + ";" + "Lucro (R$)");
-			bw.newLine();
-
-			for (SaleDTO s : sales) {
-
-				double totalExpense = 0.0;
-				for (ExpenseDTO exp : s.getVehicle().getExpenses()) {
-					totalExpense += exp.getValue();
-				}
-
-				bw.write(s.getDate() + ";" + s.getClient().getName() + ";" + s.getVehicle().getModel() + ";"
-						+ s.getVehicle().getLicensePlate() + ";" + s.getVehicle().getPaidValue() + ";" + totalExpense
-						+ ";" + s.getFinalValue() + ";"
-						+ PaymentType.toIntegerEnum(s.getPayment().getPaymentType()).getDescription() + ";"
-						+ s.getProfit());
-
-				totalProfit += s.getProfit();
-				bw.newLine();
-			}
-
-			bw.newLine();
-			bw.write("Lucro total (R$)" + ";" + totalProfit);
-			bw.newLine();
-			bw.write("Quantidade de Veiculos" + ";" + sales.getNumberOfElements());
-			bw.newLine();
-			bw.write("Ticket Medio (R$)" + ";" + totalProfit/sales.getNumberOfElements());
-			bw.newLine();
-			bw.close();
-		} catch (IOException e) {
-			throw new RuntimeException(e.getMessage());
-		}
-		return path;
-	}
-
 	private Vehicle addVehicleToStock(String cpf, ExchangeVehicleDTO objDTO, User user) {
 
 		Person client = personService.findPersonByCpf(cpf);
@@ -390,7 +334,8 @@ public class SaleService {
 		Vehicle exchange = new Vehicle(null, VehicleType.toIntegerEnum(objDTO.getType()), objDTO.getBrand(),
 				objDTO.getModel(), objDTO.getVersion(), objDTO.getFabYear(), objDTO.getModYear(), objDTO.getColor(),
 				objDTO.getMotor(), LocalDate.now(), objDTO.getLicensePlate(), objDTO.getChassi(), objDTO.getRenavam(),
-				objDTO.getDescription(), objDTO.getPaidValue(), null, objDTO.getPossibleSellValue(), Status.STOCK, user, client);
+				objDTO.getDescription(), objDTO.getPaidValue(), null, objDTO.getPossibleSellValue(), Status.STOCK, user,
+				client);
 
 		client.getSales().add(exchange);
 		user.getVehicles().add(exchange);

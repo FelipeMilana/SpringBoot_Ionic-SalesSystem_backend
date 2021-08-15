@@ -22,9 +22,9 @@ public class PersonController {
 	@Autowired
 	private PersonService personService;
 	
-	@GetMapping(value = "/cpf")
-	public ResponseEntity<PersonDTO> findByCpf(@RequestParam(value = "value") String cpf) {
-		PersonDTO person = personService.findByCpf(cpf);
+	@GetMapping(value = "/cpfCnpj")
+	public ResponseEntity<PersonDTO> findByCpfCnpj(@RequestParam(value = "value") String cpfCnpj) {
+		PersonDTO person = personService.findByCpfCnpj(cpfCnpj);
 		return ResponseEntity.ok().body(person);
 	}
 	

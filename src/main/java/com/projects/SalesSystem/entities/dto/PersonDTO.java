@@ -4,10 +4,10 @@ import java.io.Serializable;
 
 import javax.validation.constraints.NotEmpty;
 
-import org.hibernate.validator.constraints.br.CPF;
-
 import com.projects.SalesSystem.entities.Person;
+import com.projects.SalesSystem.services.validations.PersonInsert;
 
+@PersonInsert
 public class PersonDTO implements Serializable{
 
 	private static final long serialVersionUID = 1L;
@@ -19,9 +19,8 @@ public class PersonDTO implements Serializable{
 	
 	private String email;
 	
-	@NotEmpty(message = "Preenchimento Obrigatório")	
-	@CPF(message = "CPF inválido")
-	private String cpf;
+	@NotEmpty(message = "Preenchimento Obrigatório")
+	private String cpfCnpj;
 	
 	@NotEmpty(message = "Preenchimento Obrigatório")
 	private String telephone;
@@ -37,17 +36,17 @@ public class PersonDTO implements Serializable{
 		id = obj.getId();
 		name = obj.getName();
 		email = obj.getEmail();
-		cpf = obj.getCpf();
+		cpfCnpj = obj.getCpfCnpj();
 		telephone = obj.getTelephone();
 		telephone2 = obj.getTelephone2();
 		address = new AddressDTO(obj.getAddress());
 	}
 
-	public PersonDTO(Long id, String name, String email, String cpf, String telephone, String telephone2, AddressDTO address) {
+	public PersonDTO(Long id, String name, String email, String cpfCnpj, String telephone, String telephone2, AddressDTO address) {
 		this.id = id;
 		this.name = name;
 		this.email = email;
-		this.cpf = cpf;
+		this.cpfCnpj = cpfCnpj;
 		this.telephone = telephone;
 		this.telephone2 = telephone2;
 		this.address = address;
@@ -77,12 +76,12 @@ public class PersonDTO implements Serializable{
 		this.email = email;
 	}
 
-	public String getCpf() {
-		return cpf;
+	public String getCpfCnpj() {
+		return cpfCnpj;
 	}
 
-	public void setCpf(String cpf) {
-		this.cpf = cpf;
+	public void setCpfCnpj(String cpfCnpj) {
+		this.cpfCnpj = cpfCnpj;
 	}
 
 	public String getTelephone() {

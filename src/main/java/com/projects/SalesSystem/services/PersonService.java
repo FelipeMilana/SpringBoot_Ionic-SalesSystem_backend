@@ -22,18 +22,18 @@ public class PersonService {
 					new ObjectNotFound("Objeto não encontrado! Id: " + id));
 	}
 	
-	public Person findPersonByCpf(String cpf) {
-		Person obj = personRepo.findByCpf(cpf);
+	public Person findPersonByCpfCnpj(String cpfCnpj) {
+		Person obj = personRepo.findByCpfCnpj(cpfCnpj);
 		
 		if(obj == null) {
-			throw new ObjectNotFound("Objeto não encontrado! CPF: " + cpf);
+			throw new ObjectNotFound("Objeto não encontrado! CPF ou CNPJ: " + cpfCnpj);
 		}
 		
 		return obj;
 	}
 	
-	public PersonDTO findByCpf(String cpf) {
-		Person obj = findPersonByCpf(cpf);
+	public PersonDTO findByCpfCnpj(String cpfCnpj) {
+		Person obj = findPersonByCpfCnpj(cpfCnpj);
 		return new PersonDTO(obj); 
 	}
 	

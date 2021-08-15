@@ -146,7 +146,7 @@ public class SaleService {
 		if (objDTO.getClient().getId() == null) {
 
 			client = new Person(objDTO.getClient().getId(), objDTO.getClient().getName(), objDTO.getClient().getEmail(),
-					objDTO.getClient().getCpf(), objDTO.getClient().getTelephone(), objDTO.getClient().getTelephone2());
+					objDTO.getClient().getCpfCnpj(), objDTO.getClient().getTelephone(), objDTO.getClient().getTelephone2());
 
 			Address ad = new Address(objDTO.getClient().getAddress().getId(),
 					objDTO.getClient().getAddress().getStreet(), objDTO.getClient().getAddress().getNumber(),
@@ -183,7 +183,7 @@ public class SaleService {
 		else if (objDTO.getPayment() instanceof CashWithExchangePaymentDTO) {
 			CashWithExchangePaymentDTO payDTO = (CashWithExchangePaymentDTO) objDTO.getPayment();
 
-			exchange = addVehicleToStock(objDTO.getClient().getCpf(), payDTO.getExchangeVehicle(), user);
+			exchange = addVehicleToStock(objDTO.getClient().getCpfCnpj(), payDTO.getExchangeVehicle(), user);
 
 			Payment pay = new CashWithExchangePayment(payDTO.getId(), sale, Bank.toIntegerEnum(payDTO.getBank()),
 					payDTO.getCashValue(), exchange);
@@ -223,7 +223,7 @@ public class SaleService {
 		else if (objDTO.getPayment() instanceof FundedWithExchangePaymentDTO) {
 			FundedWithExchangePaymentDTO payDTO = (FundedWithExchangePaymentDTO) objDTO.getPayment();
 
-			exchange = addVehicleToStock(objDTO.getClient().getCpf(), payDTO.getExchangeVehicle(), user);
+			exchange = addVehicleToStock(objDTO.getClient().getCpfCnpj(), payDTO.getExchangeVehicle(), user);
 
 			Payment pay = new FundedWithExchangePayment(payDTO.getId(), sale, payDTO.getName(), payDTO.getCnpj(),
 					payDTO.getTelephone(), payDTO.getInputValue(), Bank.toIntegerEnum(payDTO.getInputBank()),
@@ -273,7 +273,7 @@ public class SaleService {
 		else if (objDTO.getPayment() instanceof ConsortiumWithExchangePaymentDTO) {
 			ConsortiumWithExchangePaymentDTO payDTO = (ConsortiumWithExchangePaymentDTO) objDTO.getPayment();
 
-			exchange = addVehicleToStock(objDTO.getClient().getCpf(), payDTO.getExchangeVehicle(), user);
+			exchange = addVehicleToStock(objDTO.getClient().getCpfCnpj(), payDTO.getExchangeVehicle(), user);
 
 			Payment pay = new ConsortiumWithExchangePayment(payDTO.getId(), sale, payDTO.getName(), payDTO.getCnpj(),
 					payDTO.getTelephone(), payDTO.getQuota(), payDTO.getGroup(), payDTO.getInputValue(),
@@ -300,7 +300,7 @@ public class SaleService {
 		else {
 			ExchangeWithCashbackPaymentDTO payDTO = (ExchangeWithCashbackPaymentDTO) objDTO.getPayment();
 
-			exchange = addVehicleToStock(objDTO.getClient().getCpf(), payDTO.getExchangeVehicle(), user);
+			exchange = addVehicleToStock(objDTO.getClient().getCpfCnpj(), payDTO.getExchangeVehicle(), user);
 
 			Payment pay = new ExchangeWithCashbackPayment(payDTO.getId(), sale, payDTO.getCashback(),
 					Bank.toIntegerEnum(payDTO.getBank()), exchange);
@@ -327,9 +327,9 @@ public class SaleService {
 		return new SaleDTO(sale);
 	}
 
-	private Vehicle addVehicleToStock(String cpf, ExchangeVehicleDTO objDTO, User user) {
+	private Vehicle addVehicleToStock(String cpfCnpj, ExchangeVehicleDTO objDTO, User user) {
 
-		Person client = personService.findPersonByCpf(cpf);
+		Person client = personService.findPersonByCpfCnpj(cpfCnpj);
 
 		Vehicle exchange = new Vehicle(null, VehicleType.toIntegerEnum(objDTO.getType()), objDTO.getBrand(),
 				objDTO.getModel(), objDTO.getVersion(), objDTO.getFabYear(), objDTO.getModYear(), objDTO.getColor(),

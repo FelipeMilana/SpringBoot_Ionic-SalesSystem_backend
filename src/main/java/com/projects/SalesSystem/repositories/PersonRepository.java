@@ -10,5 +10,5 @@ import com.projects.SalesSystem.entities.Person;
 public interface PersonRepository extends JpaRepository<Person, Long>{
 
 	@Transactional(readOnly = true)
-	Person findByCpf(String cpf);
+	Person findByCpfCnpj(String cpfCnpj);
 }

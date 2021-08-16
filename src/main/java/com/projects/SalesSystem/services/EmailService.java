@@ -50,10 +50,10 @@ public class EmailService {
 		MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 		MimeMessageHelper mmh = new MimeMessageHelper(mimeMessage, true);
 		mmh.setTo(user.getEmail());
-		mmh.setSubject("Relatório de Vendas");
+		mmh.setSubject("Relatório");
 		mmh.setSentDate(new Date(System.currentTimeMillis()));
-		mmh.setText("Relatorio de Vendas");
-		mmh.addAttachment("RelatorioDeVendas.xlsx", path);
+		mmh.setText("Relatório");
+		mmh.addAttachment("Relatorio.xlsx", path);
 		return mimeMessage;
 	}
 	

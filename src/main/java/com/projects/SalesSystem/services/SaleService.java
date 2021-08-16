@@ -34,11 +34,13 @@ import com.projects.SalesSystem.entities.dto.ExchangeWithCashbackPaymentDTO;
 import com.projects.SalesSystem.entities.dto.FundedPaymentDTO;
 import com.projects.SalesSystem.entities.dto.FundedWithExchangePaymentDTO;
 import com.projects.SalesSystem.entities.dto.SaleDTO;
+import com.projects.SalesSystem.entities.dto.WithdrawDTO;
 import com.projects.SalesSystem.entities.enums.Bank;
 import com.projects.SalesSystem.entities.enums.PaymentType;
 import com.projects.SalesSystem.entities.enums.Status;
 import com.projects.SalesSystem.entities.enums.VehicleType;
 import com.projects.SalesSystem.repositories.SaleRepository;
+import com.projects.SalesSystem.repositories.WithdrawRepository;
 import com.projects.SalesSystem.security.UserSS;
 import com.projects.SalesSystem.services.exceptions.AuthorizationException;
 import com.projects.SalesSystem.services.exceptions.ObjectNotFound;
@@ -48,6 +50,8 @@ public class SaleService {
 
 	@Autowired
 	private SaleRepository saleRepo;
+	@Autowired
+	private WithdrawRepository withdrawRepo;
 	@Autowired
 	private VehicleService vehicleService;
 	@Autowired
@@ -119,11 +123,15 @@ public class SaleService {
 
 		User user = userService.findUserByEmail(authUser.getUsername());
 		List<Long> salesIds = user.getSales().stream().map(x -> x.getId()).collect(Collectors.toList());
+		List<Long> withdrawsIds = user.getWithdraws().stream().map(x -> x.getId()).collect(Collectors.toList());
 
 		Page<SaleDTO> sales = saleRepo.findByDateBetweenAndIdIn(startDate, endDate, salesIds, page)
 				.map(x -> new SaleDTO(x));
+		
+		Page<WithdrawDTO> withdraws = withdrawRepo.findByDateBetweenAndIdIn(startDate, endDate, withdrawsIds, page)
+				.map(x -> new WithdrawDTO(x));
 
-		File path = excelService.createFile(sales, startDate, endDate);
+		File path = excelService.createFile(sales, withdraws, startDate, endDate);
 		emailService.sendMonthlyReportToEmail(path);
 
 		return sales;

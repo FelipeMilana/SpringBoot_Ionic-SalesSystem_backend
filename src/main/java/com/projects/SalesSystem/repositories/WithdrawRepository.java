@@ -1,5 +1,6 @@
 package com.projects.SalesSystem.repositories;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -21,4 +22,7 @@ public interface WithdrawRepository extends JpaRepository<Withdraw, Long>{
 	
 	@Transactional(readOnly = true)
 	Page<Withdraw> findByBankAndIdIn(Integer bank, List<Long> withdrawIds, Pageable page);
+	
+	@Transactional(readOnly = true)
+	Page<Withdraw> findByDateBetweenAndIdIn(LocalDate startDate, LocalDate endDate, List<Long> withdrawsIds, Pageable page);
 }
